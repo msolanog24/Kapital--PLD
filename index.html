@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kapital · Sistema PLD Interno</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #181818;
+    --bg4: #222222;
+    --border: rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.14);
+    --texto: #f0f0f0;
+    --texto-dim: #888;
+    --texto-faint: #444;
+    --rojo: #ff4d4d;
+    --rojo-dim: rgba(255,77,77,0.1);
+    --rojo-border: rgba(255,77,77,0.22);
+    --amarillo: #f5c842;
+    --amarillo-dim: rgba(245,200,66,0.1);
+    --amarillo-border: rgba(245,200,66,0.22);
+    --verde: #3ecf8e;
+    --verde-dim: rgba(62,207,142,0.1);
+    --verde-border: rgba(62,207,142,0.22);
+    --azul: #4d9fff;
+    --azul-dim: rgba(77,159,255,0.1);
+    --azul-border: rgba(77,159,255,0.22);
+    --morado: #b088f9;
+    --morado-dim: rgba(176,136,249,0.1);
+    --morado-border: rgba(176,136,249,0.22);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--texto);min-height:100vh;overflow-x:hidden;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;flex-direction:column;}
+
+  /* LOGIN */
+  #screen-login{align-items:center;justify-content:center;background:var(--bg);}
+  .login-box{background:var(--bg2);border:1px solid var(--border-strong);border-radius:20px;padding:48px 44px;width:420px;box-shadow:0 0 0 1px rgba(255,255,255,0.03),0 32px 80px rgba(0,0,0,0.6);}
+  .logo-area{text-align:center;margin-bottom:36px;}
+  .logo-mark{display:inline-flex;align-items:center;gap:9px;margin-bottom:8px;justify-content:center;}
+  .logo-mark img{height:60px;filter:brightness(0) invert(1);}
+  .logo-sub{font-size:10px;color:var(--texto-dim);letter-spacing:2.5px;text-transform:uppercase;}
+  .login-title{font-size:20px;font-weight:700;margin-bottom:5px;letter-spacing:-0.3px;}
+  .login-desc{font-size:13px;color:var(--texto-dim);margin-bottom:20px;line-height:1.55;}
+  .field{margin-bottom:14px;}
+  .field label{font-size:10px;font-weight:600;color:var(--texto-dim);display:block;margin-bottom:6px;letter-spacing:0.8px;text-transform:uppercase;}
+  .field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border-strong);border-radius:9px;padding:12px 14px;color:var(--texto);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+  .field input:focus,.field select:focus{border-color:rgba(255,255,255,0.38);}
+  .field select option{background:#1a1a1a;}
+  .btn-primary{width:100%;background:#fff;color:#0a0a0a;border:none;border-radius:9px;padding:13px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;transition:background .15s,transform .1s;}
+  .btn-primary:hover{background:#e5e5e5;transform:translateY(-1px);}
+  .login-footer{text-align:center;font-size:11px;color:var(--texto-faint);margin-top:20px;}
+  .quick-users{margin-top:18px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+  .quick-label{font-size:9px;font-weight:700;color:var(--texto-faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;}
+  .quick-user{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;transition:all .15s;margin-bottom:3px;}
+  .quick-user:last-child{margin-bottom:0;}
+  .quick-user:hover{background:var(--bg4);}
+  .qu-avatar{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .qu-info{flex:1;}
+  .qu-name{font-size:11px;font-weight:600;}
+  .qu-role{font-size:10px;color:var(--texto-dim);}
+  .qu-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;}
+
+  /* TOPBAR */
+  .topbar{background:rgba(10,10,10,0.96);border-bottom:1px solid var(--border);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);flex-shrink:0;}
+  .tl{display:flex;align-items:center;gap:10px;}
+  .tl-logo{display:flex;align-items:center;gap:7px;}
+  .tl-logo img{height:52px;filter:brightness(0) invert(1);}
+  .tl-logo-text{font-size:15px;font-weight:800;letter-spacing:-0.3px;}
+  .tdiv{width:1px;height:18px;background:var(--border-strong);margin:0 14px;}
+  .tmodule{font-size:12px;color:var(--texto-dim);font-weight:500;}
+  .tr{display:flex;align-items:center;gap:10px;}
+  .tuser{font-size:12px;color:var(--texto-dim);background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 11px;}
+  .trole-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;}
+  .btn-logout{background:transparent;border:1px solid var(--border-strong);border-radius:7px;color:var(--texto-dim);padding:5px 13px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+  .btn-logout:hover{border-color:var(--rojo);color:var(--rojo);}
+
+  /* CONTENT */
+  .content{flex:1;padding:36px 40px;max-width:1340px;width:100%;margin:0 auto;}
+  .btn-back{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--border-strong);border-radius:7px;color:var(--texto-dim);padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;margin-bottom:28px;transition:all .2s;}
+  .btn-back:hover{border-color:rgba(255,255,255,0.28);color:var(--texto);}
+
+  /* DASH */
+  .dash-eyebrow{font-size:11px;color:var(--texto-faint);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+  .dash-title{font-size:28px;font-weight:800;letter-spacing:-0.7px;margin-bottom:32px;}
+  .dash-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .dash-card{background:var(--bg2);border:1px solid var(--border-strong);border-radius:14px;padding:26px;cursor:pointer;transition:all .2s;position:relative;}
+  .dash-card:hover{border-color:rgba(255,255,255,0.26);background:var(--bg3);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,0.45);}
+  .dash-card.locked{opacity:0.38;cursor:not-allowed;pointer-events:none;}
+  .card-num{font-size:10px;font-weight:700;color:var(--texto-faint);letter-spacing:1.2px;margin-bottom:18px;}
+  .card-icon{font-size:26px;margin-bottom:14px;}
+  .card-title{font-size:16px;font-weight:700;margin-bottom:7px;letter-spacing:-0.3px;}
+  .card-desc{font-size:13px;color:var(--texto-dim);line-height:1.6;}
+  .card-cta{margin-top:20px;font-size:12px;font-weight:600;color:var(--texto-faint);display:flex;align-items:center;gap:5px;transition:color .2s;}
+  .dash-card:hover .card-cta{color:var(--texto);}
+  .card-locked-label{position:absolute;top:14px;right:14px;font-size:9px;font-weight:700;color:var(--texto-faint);background:var(--bg4);border:1px solid var(--border);border-radius:5px;padding:2px 7px;letter-spacing:0.5px;}
+
+  /* LABELS */
+  .section-eyebrow{font-size:10px;font-weight:700;color:var(--texto-faint);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:5px;}
+  .section-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
+  .section-sub{font-size:13px;color:var(--texto-dim);margin-bottom:24px;line-height:1.55;}
+
+  /* SEARCH */
+  .search-box{background:var(--bg2);border:1px solid var(--border-strong);border-radius:14px;padding:22px 26px;margin-bottom:18px;}
+  .search-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  .input-group label{font-size:10px;font-weight:600;color:var(--texto-dim);display:block;margin-bottom:6px;letter-spacing:0.6px;text-transform:uppercase;}
+  .input-group input,.input-group select,.input-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border-strong);border-radius:8px;padding:10px 13px;color:var(--texto);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+  .input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:rgba(255,255,255,0.38);}
+  .input-group select option,.input-group textarea{background:#1a1a1a;}
+  .input-group textarea{resize:vertical;min-height:80px;line-height:1.6;}
+  .search-hint{font-size:11px;color:var(--texto-faint);margin-bottom:14px;}
+  .btn-buscar{background:#fff;color:#0a0a0a;border:none;border-radius:8px;padding:10px 24px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;}
+  .btn-buscar:hover{background:#e5e5e5;}
+  .resultados-count{font-size:11px;color:var(--texto-dim);margin-bottom:9px;font-weight:500;}
+  .cliente-row{background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;cursor:pointer;transition:all .18s;}
+  .cliente-row:hover{border-color:rgba(255,255,255,0.26);background:var(--bg3);}
+  .cr-left{display:flex;align-items:center;gap:13px;}
+  .cr-info{display:flex;flex-direction:column;gap:3px;}
+  .cr-nombre{font-size:14px;font-weight:600;}
+  .cr-meta{font-size:11px;color:var(--texto-dim);font-family:'JetBrains Mono',monospace;}
+  .cr-right{display:flex;align-items:center;gap:10px;}
+
+  /* BADGES */
+  .badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:0.2px;white-space:nowrap;}
+  .badge-alto{background:var(--rojo-dim);color:var(--rojo);border:1px solid var(--rojo-border);}
+  .badge-medio{background:var(--amarillo-dim);color:var(--amarillo);border:1px solid var(--amarillo-border);}
+  .badge-bajo{background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-border);}
+  .badge-pendiente{background:var(--rojo-dim);color:var(--rojo);border:1px solid var(--rojo-border);}
+  .badge-revision{background:var(--amarillo-dim);color:var(--amarillo);border:1px solid var(--amarillo-border);}
+  .badge-cerrada{background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-border);}
+  .badge-neutral{background:rgba(255,255,255,0.05);color:var(--texto-dim);border:1px solid var(--border-strong);}
+  .badge-comite{background:var(--morado-dim);color:var(--morado);border:1px solid var(--morado-border);}
+  .badge-azul{background:var(--azul-dim);color:var(--azul);border:1px solid var(--azul-border);}
+  .badge-director{background:linear-gradient(135deg,rgba(255,77,77,0.15),rgba(176,136,249,0.15));color:#e8b4ff;border:1px solid rgba(176,136,249,0.3);}
+  .badge-subdirector{background:var(--morado-dim);color:var(--morado);border:1px solid var(--morado-border);}
+  .badge-gerente{background:var(--azul-dim);color:var(--azul);border:1px solid var(--azul-border);}
+  .badge-analista{background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-border);}
+
+  /* CLIENTE HEADER */
+  .cliente-header{display:flex;align-items:center;gap:18px;margin-bottom:22px;background:var(--bg2);border:1px solid var(--border-strong);border-radius:14px;padding:20px 24px;}
+  .cli-avatar{width:48px;height:48px;background:var(--bg4);border:1px solid var(--border-strong);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .cli-info{flex:1;}
+  .cli-name{font-size:19px;font-weight:800;letter-spacing:-0.4px;}
+  .cli-meta{font-size:11px;color:var(--texto-dim);font-family:'JetBrains Mono',monospace;margin-top:3px;}
+  .cli-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+
+  /* TABS */
+  .tab-bar{display:flex;gap:2px;background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px;padding:4px;margin-bottom:22px;flex-wrap:wrap;}
+  .tab-btn{background:transparent;border:none;border-radius:8px;padding:8px 16px;color:var(--texto-dim);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .tab-btn.active{background:var(--bg4);color:var(--texto);font-weight:600;}
+  .tab-btn:hover:not(.active){color:var(--texto);}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;animation:fi .15s ease;}
+  @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+  /* INFO GRID */
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+  .info-card{background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px;padding:14px 16px;}
+  .info-label{font-size:9px;color:var(--texto-dim);font-weight:700;letter-spacing:0.9px;text-transform:uppercase;margin-bottom:5px;}
+  .info-val{font-size:13px;font-weight:500;line-height:1.4;}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+  /* TABLE */
+  .table-wrap{overflow-x:auto;}
+  .table-container{background:var(--bg2);border:1px solid var(--border-strong);border-radius:12px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-bottom:1px solid var(--border-strong);}
+  th{font-size:9px;font-weight:700;color:var(--texto-dim);text-transform:uppercase;letter-spacing:0.9px;padding:11px 15px;text-align:left;background:var(--bg3);}
+  td{font-size:12px;padding:13px 15px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:rgba(255,255,255,0.02);}
+  .pct-bar{display:flex;align-items:center;gap:8px;}
+  .bar-bg{flex:1;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;min-width:50px;}
+  .bar-fill{height:100%;border-radius:2px;}
+  .bar-alto{background:var(--rojo);}
+  .bar-medio{background:var(--amarillo);}
+  .bar-bajo{background:var(--verde);}
+
+  /* ALERTAS */
+  .alerta-row{background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;cursor:pointer;transition:all .18s;gap:14px;}
+  .alerta-row:hover{border-color:rgba(255,255,255,0.26);background:var(--bg3);}
+  .alerta-row.pendiente{border-left:3px solid var(--rojo);}
+  .alerta-row.revision{border-left:3px solid var(--amarillo);}
+  .alerta-row.cerrada{border-left:3px solid var(--verde);}
+  .alerta-row.comite{border-left:3px solid var(--morado);}
+  .al-info{flex:1;min-width:0;}
+  .al-nombre{font-size:13px;font-weight:600;margin-bottom:4px;}
+  .al-meta{font-size:11px;color:var(--texto-dim);display:flex;gap:14px;flex-wrap:wrap;}
+  .al-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:var(--bg2);border:1px solid var(--border-strong);border-radius:18px;padding:32px;width:620px;max-height:88vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,0.7);}
+  .modal-box-wide{width:820px;}
+  .modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;gap:14px;}
+  .modal-title{font-size:17px;font-weight:800;letter-spacing:-0.3px;}
+  .modal-folio{font-size:11px;color:var(--texto-dim);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+  .modal-close{background:var(--bg3);border:1px solid var(--border-strong);color:var(--texto-dim);font-size:15px;cursor:pointer;width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+  .modal-close:hover{color:var(--texto);}
+  .modal-section{margin-bottom:18px;}
+  .modal-sec-title{font-size:9px;font-weight:700;color:var(--texto-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+  .modal-detail{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:13px 15px;font-size:13px;line-height:1.7;color:var(--texto);}
+  .modal-monto{font-size:28px;font-weight:800;color:var(--texto);letter-spacing:-0.7px;}
+  .modal-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+
+  /* STATS */
+  .stats-row{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat-chip{background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px;padding:14px 18px;min-width:105px;}
+  .stat-num{font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+  .stat-num.rojo{color:var(--rojo);}
+  .stat-num.amarillo{color:var(--amarillo);}
+  .stat-num.verde{color:var(--verde);}
+  .stat-num.azul{color:var(--azul);}
+  .stat-num.morado{color:var(--morado);}
+  .stat-label{font-size:10px;color:var(--texto-dim);font-weight:500;margin-top:2px;}
+
+  /* FILTROS */
+  .filter-bar{display:flex;gap:9px;margin-bottom:18px;align-items:center;flex-wrap:wrap;}
+  .filter-search{background:var(--bg2);border:1px solid var(--border-strong);border-radius:9px;color:var(--texto);padding:9px 14px;font-family:'Inter',sans-serif;font-size:13px;outline:none;flex:1;min-width:220px;transition:border-color .2s;}
+  .filter-search:focus{border-color:rgba(255,255,255,0.32);}
+  .filter-select{background:var(--bg2);border:1px solid var(--border-strong);border-radius:9px;color:var(--texto);padding:9px 13px;font-family:'Inter',sans-serif;font-size:13px;outline:none;cursor:pointer;}
+  .filter-select option{background:#1a1a1a;}
+
+  /* CONFIG */
+  .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .config-card{background:var(--bg2);border:1px solid var(--border-strong);border-radius:14px;padding:22px 26px;}
+  .config-card-title{font-size:14px;font-weight:700;margin-bottom:3px;letter-spacing:-0.2px;}
+  .config-card-desc{font-size:11px;color:var(--texto-dim);margin-bottom:18px;line-height:1.5;}
+  .config-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);}
+  .config-row:last-of-type{border-bottom:none;}
+  .config-row-label{font-size:12px;color:var(--texto-dim);}
+  .config-input{background:var(--bg3);border:1px solid var(--border-strong);border-radius:7px;padding:6px 11px;color:var(--texto);font-family:'JetBrains Mono',monospace;font-size:12px;width:115px;text-align:right;outline:none;transition:border-color .2s;}
+  .config-input:focus{border-color:rgba(255,255,255,0.38);}
+
+  /* PAÍSES TABLE */
+  .pais-table-row{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .pais-table-row:last-child{border-bottom:none;}
+  .pais-table-row.header{font-size:9px;font-weight:700;color:var(--texto-dim);letter-spacing:0.8px;text-transform:uppercase;padding-bottom:7px;border-bottom:1px solid var(--border-strong);}
+  .riesgo-select{background:var(--bg3);border:1px solid var(--border-strong);border-radius:7px;color:var(--texto);padding:5px 9px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;outline:none;cursor:pointer;width:100%;}
+  .riesgo-select option{background:#1a1a1a;}
+  .riesgo-select.alto{color:var(--rojo);border-color:var(--rojo-border);background:var(--rojo-dim);}
+  .riesgo-select.medio{color:var(--amarillo);border-color:var(--amarillo-border);background:var(--amarillo-dim);}
+  .riesgo-select.bajo{color:var(--verde);border-color:var(--verde-border);background:var(--verde-dim);}
+
+  .toggle{position:relative;width:38px;height:21px;background:var(--bg4);border-radius:11px;cursor:pointer;border:1px solid var(--border-strong);transition:all .2s;flex-shrink:0;}
+  .toggle.on{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.28);}
+  .toggle::after{content:'';position:absolute;width:15px;height:15px;background:var(--texto-dim);border-radius:50%;top:2px;left:2px;transition:all .2s;}
+  .toggle.on::after{left:19px;background:var(--texto);}
+
+  .btn-guardar{background:var(--bg3);color:var(--texto-dim);border:1px solid var(--border-strong);border-radius:7px;padding:8px 18px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;margin-top:14px;transition:all .2s;}
+  .btn-guardar:hover{background:#fff;color:#0a0a0a;border-color:#fff;}
+  .btn-accion{background:var(--bg3);color:var(--texto-dim);border:1px solid var(--border-strong);border-radius:7px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+  .btn-accion:hover{background:var(--bg4);color:var(--texto);}
+  .btn-accion.primary{background:#fff;color:#0a0a0a;border-color:#fff;}
+  .btn-accion.primary:hover{background:#e5e5e5;}
+  .btn-accion.danger{border-color:var(--rojo-border);color:var(--rojo);}
+  .btn-accion.danger:hover{background:var(--rojo-dim);}
+  .btn-accion.success{border-color:var(--verde-border);color:var(--verde);}
+  .btn-accion.success:hover{background:var(--verde-dim);}
+  .btn-accion.morado{border-color:var(--morado-border);color:var(--morado);}
+  .btn-accion.morado:hover{background:var(--morado-dim);}
+
+  /* COMMENT */
+  .comment-block{border-left:2px solid var(--border-strong);padding-left:14px;margin-bottom:13px;}
+  .comment-author{font-size:12px;font-weight:600;margin-bottom:2px;}
+  .comment-date{font-size:10px;color:var(--texto-faint);margin-bottom:5px;}
+  .comment-text{font-size:12px;color:var(--texto-dim);line-height:1.65;}
+
+  /* TOAST */
+  .saved-toast{position:fixed;bottom:24px;right:24px;background:#fff;color:#0a0a0a;padding:11px 22px;border-radius:9px;font-weight:700;font-size:13px;z-index:9999;transform:translateY(70px);opacity:0;transition:all .3s;box-shadow:0 8px 28px rgba(0,0,0,0.4);}
+  .saved-toast.show{transform:translateY(0);opacity:1;}
+
+  /* PRODUCTIVIDAD */
+  .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  .prod-card{background:var(--bg2);border:1px solid var(--border-strong);border-radius:12px;padding:18px 20px;}
+  .prod-card-title{font-size:10px;font-weight:700;color:var(--texto-dim);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px;}
+  .prod-analyst-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .prod-analyst-row:last-child{border-bottom:none;}
+  .prod-name{font-size:13px;font-weight:600;flex:1;}
+  .prod-role{font-size:10px;color:var(--texto-dim);}
+  .prod-bars{display:flex;gap:8px;align-items:center;}
+  .prod-num{font-size:13px;font-weight:700;min-width:30px;text-align:center;}
+  .mini-bar-wrap{width:60px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+  .mini-bar{height:100%;border-radius:2px;}
+  .equipo-card{background:var(--bg2);border:1px solid var(--border-strong);border-radius:12px;padding:20px 22px;margin-bottom:12px;}
+  .equipo-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .equipo-avatar{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .equipo-info{flex:1;}
+  .equipo-name{font-size:14px;font-weight:700;}
+  .equipo-meta{font-size:11px;color:var(--texto-dim);}
+  .equipo-stats{display:flex;gap:8px;flex-wrap:wrap;}
+  .equipo-stat{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;}
+  .equipo-stat-num{font-size:18px;font-weight:800;}
+  .equipo-stat-label{font-size:9px;color:var(--texto-dim);margin-top:1px;}
+
+  /* ANÁLISIS DE CASO (Analista) */
+  .caso-layout{display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start;}
+  .caso-panel{background:var(--bg2);border:1px solid var(--border-strong);border-radius:14px;padding:22px 24px;margin-bottom:14px;}
+  .caso-panel-title{font-size:12px;font-weight:700;color:var(--texto-dim);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .op-row{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 15px;margin-bottom:6px;display:flex;align-items:center;gap:12px;}
+  .op-tipo{font-size:11px;font-weight:700;width:100px;flex-shrink:0;}
+  .op-monto{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;flex:1;}
+  .op-meta{font-size:10px;color:var(--texto-dim);text-align:right;}
+  .gafi-item{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 15px;margin-bottom:6px;}
+  .gafi-titulo{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .gafi-desc{font-size:11px;color:var(--texto-dim);line-height:1.6;}
+  .gafi-nivel{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;flex-shrink:0;}
+  .red-canvas{background:var(--bg3);border:1px solid var(--border-strong);border-radius:12px;min-height:280px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .red-node{position:absolute;background:var(--bg2);border:2px solid var(--border-strong);border-radius:10px;padding:10px 14px;font-size:11px;font-weight:700;text-align:center;cursor:pointer;transition:all .2s;min-width:100px;}
+  .red-node:hover{border-color:rgba(255,255,255,0.4);}
+  .red-node.centro{border-color:var(--rojo-border);background:var(--rojo-dim);}
+  .red-node.relacionado{border-color:var(--amarillo-border);background:var(--amarillo-dim);}
+  .red-node.empresa{border-color:var(--azul-border);background:var(--azul-dim);}
+  .red-line{position:absolute;background:rgba(255,255,255,0.08);height:1px;transform-origin:left center;}
+  .pregunta-item{background:var(--bg3);border:1px solid var(--azul-border);border-radius:9px;padding:12px 15px;margin-bottom:6px;font-size:12px;color:var(--azul);line-height:1.6;}
+  .caso-redaccion{width:100%;background:var(--bg3);border:1px solid var(--border-strong);border-radius:9px;padding:14px;color:var(--texto);font-family:'Inter',sans-serif;font-size:13px;line-height:1.7;outline:none;resize:vertical;min-height:180px;transition:border-color .2s;}
+  .caso-redaccion:focus{border-color:rgba(255,255,255,0.32);}
+
+  /* REVISIÓN SUBDIRECTORA */
+  .revision-card{background:var(--bg2);border:1px solid var(--border-strong);border-radius:14px;padding:22px 26px;margin-bottom:12px;}
+  .revision-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px;}
+  .revision-analista{font-size:11px;color:var(--texto-dim);}
+  .revision-conclusion{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:14px 16px;font-size:13px;color:var(--texto);line-height:1.7;margin-bottom:14px;}
+  .revision-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  /* Reasignación */
+  .reasig-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .reasig-row:last-child{border-bottom:none;}
+  .reasig-info{flex:1;}
+  .reasig-folio{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+  .reasig-meta{font-size:11px;color:var(--texto-dim);}
+  .reasig-asignado{font-size:11px;color:var(--texto-dim);min-width:140px;}
+
+  /* Carga de trabajo */
+  .carga-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+  .carga-row:last-child{border-bottom:none;}
+  .carga-analista{flex:1;}
+  .carga-analista-name{font-size:13px;font-weight:600;}
+  .carga-analista-meta{font-size:10px;color:var(--texto-dim);}
+  .carga-barra-wrap{flex:1;}
+  .carga-barra-bg{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+  .carga-barra-fill{height:100%;border-radius:3px;background:var(--verde);transition:width .4s;}
+  .carga-barra-fill.media{background:var(--amarillo);}
+  .carga-barra-fill.alta{background:var(--rojo);}
+  .carga-num{font-size:12px;font-weight:700;min-width:28px;text-align:right;}
+
+  @media(max-width:900px){
+    .dash-cards{grid-template-columns:1fr;}
+    .search-grid{grid-template-columns:1fr;}
+    .info-grid{grid-template-columns:1fr 1fr;}
+    .config-grid{grid-template-columns:1fr;}
+    .caso-layout{grid-template-columns:1fr;}
+    .prod-grid{grid-template-columns:1fr 1fr;}
+    .content{padding:20px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-box" style="max-width:440px;">
+    <div class="logo-area">
+      <div class="logo-mark">
+        <img src="logo_KB.png" alt="Kapital">
+      </div>
+      <div class="logo-sub">Sistema Interno · PLD / AML</div>
+    </div>
+    <div class="login-title">Acceso al sistema</div>
+    <div class="login-desc">Selecciona un perfil de acceso para la demostración o ingresa tus credenciales.</div>
+    <div class="field"><label>Usuario</label><input type="text" id="login-user" value="jorgonzalez@kapital.com"></div>
+    <div class="field"><label>Contraseña</label><input type="password" value="••••••••••"></div>
+    <button class="btn-primary" onclick="loginConPerfil()">Ingresar al sistema →</button>
+
+    <div class="quick-users" style="margin-top:16px;">
+      <div class="quick-label">Perfiles de demostración</div>
+      <div class="quick-user" onclick="seleccionarPerfil('director')">
+        <div class="qu-avatar" style="background:rgba(176,136,249,0.15);border:1px solid var(--morado-border);">👔</div>
+        <div class="qu-info">
+          <div class="qu-name">Jorge Daniel Gonzalez Arostico</div>
+          <div class="qu-role">jorgonzalez@kapital.com</div>
+        </div>
+        <span class="qu-badge badge badge-director">Director</span>
+      </div>
+      <div class="quick-user" onclick="seleccionarPerfil('subdirector')">
+        <div class="qu-avatar" style="background:rgba(176,136,249,0.12);border:1px solid var(--morado-border);">👩‍💼</div>
+        <div class="qu-info">
+          <div class="qu-name">Jacqueline Barajas Lemus</div>
+          <div class="qu-role">jbarajas@kapital.com</div>
+        </div>
+        <span class="qu-badge badge badge-subdirector">Subdirectora</span>
+      </div>
+      <div class="quick-user" onclick="seleccionarPerfil('gerente')">
+        <div class="qu-avatar" style="background:var(--azul-dim);border:1px solid var(--azul-border);">👩‍💻</div>
+        <div class="qu-info">
+          <div class="qu-name">Nicole De Los Reyes Ruiz</div>
+          <div class="qu-role">nreyesr@kapital.com</div>
+        </div>
+        <span class="qu-badge badge badge-gerente">Gerente</span>
+      </div>
+      <div class="quick-user" onclick="seleccionarPerfil('analista')">
+        <div class="qu-avatar" style="background:var(--verde-dim);border:1px solid var(--verde-border);">🔎</div>
+        <div class="qu-info">
+          <div class="qu-name">Jose Alfonso Fajardo Leyva</div>
+          <div class="qu-role">jfajardo@kapital.com</div>
+        </div>
+        <span class="qu-badge badge badge-analista">Analista</span>
+      </div>
+    </div>
+    <div class="login-footer">Kapital Bank México · Uso interno restringido · v3.0.0</div>
+  </div>
+</div>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="screen-dashboard" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="Kapital"></div>
+      <div class="tdiv"></div>
+      <span class="tmodule" id="dash-modulo-label">PLD · Prevención de Lavado de Dinero</span>
+    </div>
+    <div class="tr">
+      <span class="tuser" id="dash-user-label">👤 —</span>
+      <span class="trole-badge badge" id="dash-role-badge">—</span>
+      <button class="btn-logout" onclick="ir('login')">Cerrar sesión</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="dash-eyebrow" id="dash-fecha">Viernes 3 de abril, 2026</div>
+    <div class="dash-title" id="dash-bienvenida">Bienvenido</div>
+    <div class="stats-row" id="dash-stats"></div>
+    <div class="dash-cards" id="dash-cards-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════ BÚSQUEDA CLIENTE ══════════════ -->
+<div id="screen-busqueda-cliente" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">Consulta de Clientes</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-busqueda">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="irDash()">← Inicio</button>
+    <div class="section-eyebrow">Módulo 01</div>
+    <div class="section-title">Consulta de Clientes</div>
+    <div class="section-sub">Usa uno o varios campos para buscar. Por ID obtendrás resultado único.</div>
+    <div class="search-box">
+      <div class="search-grid">
+        <div class="input-group"><label>ID Cliente</label><input type="text" id="busq-id" placeholder="Ej. KAP-004821"></div>
+        <div class="input-group"><label>Razón social o nombre</label><input type="text" id="busq-nombre" placeholder="Ej. Constructora del Norte"></div>
+        <div class="input-group"><label>RFC</label><input type="text" id="busq-rfc" placeholder="Ej. CDN990101AAA"></div>
+      </div>
+      <div class="search-hint">Puedes dejar campos vacíos para mostrar todos los clientes.</div>
+      <button class="btn-buscar" onclick="buscarCliente()">Buscar →</button>
+    </div>
+    <div id="resultados-container" style="display:none">
+      <div class="resultados-count" id="resultados-count"></div>
+      <div id="lista-resultados"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ DETALLE CLIENTE ══════════════ -->
+<div id="screen-detalle-cliente" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">Expediente de Cliente</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-detalle">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="ir('busqueda-cliente')">← Resultados de búsqueda</button>
+    <div class="cliente-header">
+      <div class="cli-avatar" id="det-avatar">🏢</div>
+      <div class="cli-info">
+        <div class="cli-name" id="det-nombre">—</div>
+        <div class="cli-meta" id="det-meta">—</div>
+      </div>
+      <div class="cli-right">
+        <span class="badge" id="det-badge">—</span>
+        <span id="det-tipo" style="font-size:11px;color:var(--texto-dim)">—</span>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="tab(event,'datos')">Datos Personales</button>
+      <button class="tab-btn" onclick="tab(event,'relacionados')">Relacionados</button>
+      <button class="tab-btn" onclick="tab(event,'cuentas')">Cuentas</button>
+      <button class="tab-btn" onclick="tab(event,'documentacion')">Documentación</button>
+      <button class="tab-btn" onclick="tab(event,'alertas-cliente')">Alertas</button>
+    </div>
+    <div id="tab-datos" class="tab-content active">
+      <div class="info-grid" id="datos-grid"></div>
+      <div style="margin-top:4px">
+        <div class="info-card" style="margin-bottom:10px">
+          <div class="info-label" style="margin-bottom:10px">Coincidencias en listas negras</div>
+          <div class="table-wrap"><table><thead><tr><th>Lista</th><th>Nombre en lista</th><th>Tipo</th><th>% Coincidencia</th></tr></thead><tbody id="listas-tbody"></tbody></table></div>
+        </div>
+        <div class="info-card">
+          <div class="info-label" style="margin-bottom:12px">Comentarios de entrevista / cuestionario</div>
+          <div id="comentarios-container"></div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-relacionados" class="tab-content">
+      <div class="table-container table-wrap"><table>
+        <thead><tr><th>Nombre completo</th><th>Tipo</th><th>RFC / CURP</th><th>F. Nac/Const.</th><th>Nacionalidad</th><th>Actividad</th><th>Tipo relación</th><th>Contrato</th><th>Perfil</th></tr></thead>
+        <tbody id="relacionados-tbody"></tbody>
+      </table></div>
+    </div>
+    <div id="tab-cuentas" class="tab-content">
+      <div class="table-container table-wrap"><table>
+        <thead><tr><th>Nombre cuenta</th><th>Número de cuenta</th><th>Sucursal apertura</th><th>Relación cliente</th><th>Estatus</th><th>Fecha apertura</th><th>Fecha baja</th></tr></thead>
+        <tbody id="cuentas-tbody"></tbody>
+      </table></div>
+    </div>
+    <div id="tab-documentacion" class="tab-content">
+      <div class="info-grid" id="doc-grid"></div>
+      <div class="info-card" style="margin-top:10px">
+        <div class="info-label" style="margin-bottom:8px">Perfil transaccional declarado</div>
+        <div id="perfil-tx" style="font-size:12px;color:var(--texto-dim);line-height:1.7"></div>
+      </div>
+    </div>
+    <div id="tab-alertas-cliente" class="tab-content">
+      <div id="alertas-cliente-lista"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MONITOR ALERTAS ══════════════ -->
+<div id="screen-alertas-general" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">PLD · Monitor de Alertas</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-alertas">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="irDash()">← Inicio</button>
+    <div class="section-eyebrow">Módulo 02</div>
+    <div class="section-title">Monitor de Alertas</div>
+    <div class="section-sub" id="alertas-sub-texto">Todas las alertas del sistema, ordenadas de la más reciente a la más antigua.</div>
+    <div class="stats-row">
+      <div class="stat-chip"><div class="stat-num rojo">12</div><div class="stat-label">Pendientes</div></div>
+      <div class="stat-chip"><div class="stat-num amarillo">8</div><div class="stat-label">En revisión</div></div>
+      <div class="stat-chip"><div class="stat-num verde">47</div><div class="stat-label">Cerradas</div></div>
+      <div class="stat-chip"><div class="stat-num morado">2</div><div class="stat-label">En Comité</div></div>
+      <div class="stat-chip"><div class="stat-num">67</div><div class="stat-label">Total</div></div>
+    </div>
+    <div class="filter-bar">
+      <input class="filter-search" type="text" placeholder="🔍  Buscar por escenario, cliente o folio..." oninput="filtrarAlertas(this.value)">
+      <select class="filter-select" onchange="filtrarEstatus(this.value)">
+        <option value="todos">Todos los estatus</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="revision">En revisión</option>
+        <option value="cerrada">Cerrada</option>
+        <option value="comite">En Comité</option>
+      </select>
+      <select class="filter-select" id="filtro-analista-select" style="display:none" onchange="filtrarPorAnalista(this.value)">
+        <option value="todos">Todos los analistas</option>
+        <option value="jfajardo">Jose Fajardo</option>
+        <option value="rmorales">Roberto Morales</option>
+        <option value="lgomez">Laura Gómez</option>
+      </select>
+    </div>
+    <div id="lista-alertas-general"></div>
+  </div>
+</div>
+
+<!-- ══════════════ ANÁLISIS DE CASO (ANALISTA) ══════════════ -->
+<div id="screen-analisis-caso" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">Gestión de Alertas · Análisis de Caso</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-caso">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="ir('alertas-general')">← Monitor de Alertas</button>
+
+    <!-- Header del caso -->
+    <div class="caso-panel" style="margin-bottom:18px;">
+      <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div class="section-eyebrow">Gestión de Alertas</div>
+          <div style="font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;" id="caso-titulo">—</div>
+          <div style="font-size:12px;color:var(--texto-dim);font-family:'JetBrains Mono',monospace;margin-bottom:10px;" id="caso-folio-meta">—</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;" id="caso-badges"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">
+          <button class="btn-accion" onclick="abrirModalAsignarRed()">🕸️ Red de casos</button>
+          <button class="btn-accion" onclick="abrirModalPreguntasIA()">🤖 IA: Sugerir preguntas</button>
+          <button class="btn-accion" onclick="abrirModalGAFI()">📋 GAFI / Indicadores</button>
+          <button class="btn-accion success" onclick="abrirModalCerrarCaso()">✓ Concluir caso</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="caso-layout">
+      <!-- COLUMNA IZQUIERDA: contenido del análisis -->
+      <div>
+        <!-- Tabs de análisis -->
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="tabCaso(event,'operaciones')">💳 Operaciones</button>
+          <button class="tab-btn" onclick="tabCaso(event,'cliente-caso')">👤 Cliente</button>
+          <button class="tab-btn" onclick="tabCaso(event,'investigacion')">🔎 Investigación</button>
+          <button class="tab-btn" onclick="tabCaso(event,'red-lavado')">🕸️ Red</button>
+          <button class="tab-btn" onclick="tabCaso(event,'redaccion')">📝 Redacción</button>
+          <button class="tab-btn" onclick="tabCaso(event,'doc-anexos')">📎 Documentación</button>
+        </div>
+
+        <!-- Operaciones -->
+        <div id="tab-caso-operaciones" class="tab-content active">
+          <div class="caso-panel">
+            <div class="caso-panel-title">💳 Operaciones que generaron la alerta</div>
+            <div id="caso-ops-lista"></div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <div style="font-size:10px;font-weight:700;color:var(--texto-dim);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px;">Resumen de movimientos (últimos 90 días)</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                <div class="equipo-stat"><div class="equipo-stat-num rojo" style="font-size:13px;">$1.24M</div><div class="equipo-stat-label">Total ingresos</div></div>
+                <div class="equipo-stat"><div class="equipo-stat-num" style="font-size:13px;">$890K</div><div class="equipo-stat-label">Total egresos</div></div>
+                <div class="equipo-stat"><div class="equipo-stat-num amarillo" style="font-size:13px;">6</div><div class="equipo-stat-label">Contrapartes distintas</div></div>
+                <div class="equipo-stat"><div class="equipo-stat-num rojo" style="font-size:13px;">4</div><div class="equipo-stat-label">Alertas activas</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="caso-panel">
+            <div class="caso-panel-title">📊 Detalle de todas las operaciones</div>
+            <div class="table-container table-wrap">
+              <table>
+                <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Contraparte</th><th>Canal</th><th>Referencia</th><th>Bandera</th></tr></thead>
+                <tbody id="ops-detalle-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cliente en el caso -->
+        <div id="tab-caso-cliente-caso" class="tab-content">
+          <div class="caso-panel">
+            <div class="caso-panel-title">👤 Datos del cliente vinculado</div>
+            <div class="info-grid" id="caso-cliente-datos"></div>
+            <div style="margin-top:12px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:14px 16px;">
+              <div class="info-label" style="margin-bottom:8px;">Perfil transaccional declarado</div>
+              <div id="caso-perfil-tx" style="font-size:12px;color:var(--texto-dim);line-height:1.7;"></div>
+            </div>
+          </div>
+          <div class="caso-panel">
+            <div class="caso-panel-title">📋 Documentación del expediente</div>
+            <div class="info-grid" id="caso-docs-grid"></div>
+          </div>
+          <div class="caso-panel">
+            <div class="caso-panel-title">🤝 Personas y empresas relacionadas</div>
+            <div class="table-container table-wrap"><table>
+              <thead><tr><th>Nombre</th><th>Tipo</th><th>RFC</th><th>Relación</th><th>Perfil</th></tr></thead>
+              <tbody id="caso-relacionados-tbody"></tbody>
+            </table></div>
+          </div>
+        </div>
+
+        <!-- Investigación -->
+        <div id="tab-caso-investigacion" class="tab-content">
+          <div class="caso-panel">
+            <div class="caso-panel-title">🔎 Notas de investigación</div>
+            <div id="caso-notas-lista" style="margin-bottom:14px;"></div>
+            <div class="input-group" style="margin-bottom:10px;">
+              <label>Agregar nota de investigación</label>
+              <textarea id="nueva-nota" placeholder="Escribe tus hallazgos, observaciones o consultas externas realizadas..."></textarea>
+            </div>
+            <button class="btn-accion" onclick="agregarNota()">+ Agregar nota</button>
+          </div>
+          <div class="caso-panel">
+            <div class="caso-panel-title">🌐 Búsquedas externas sugeridas</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <a href="#" onclick="return false;" class="gafi-item" style="text-decoration:none;color:inherit;">
+                <div class="gafi-titulo">🔍 Google / Noticias negativas</div>
+                <div class="gafi-desc">Buscar nombre del cliente en noticias relacionadas con lavado, fraude o corrupción.</div>
+              </a>
+              <a href="#" onclick="return false;" class="gafi-item" style="text-decoration:none;color:inherit;">
+                <div class="gafi-titulo">⚖️ DOF / Sanciones SHCP</div>
+                <div class="gafi-desc">Verificar en la lista de personas bloqueadas del SAT y SHCP.</div>
+              </a>
+              <a href="#" onclick="return false;" class="gafi-item" style="text-decoration:none;color:inherit;">
+                <div class="gafi-titulo">🇺🇸 OFAC SDN List</div>
+                <div class="gafi-desc">Consulta directa en la lista SDN de la Oficina de Control de Activos Extranjeros.</div>
+              </a>
+              <a href="#" onclick="return false;" class="gafi-item" style="text-decoration:none;color:inherit;">
+                <div class="gafi-titulo">🇺🇳 Sanciones ONU</div>
+                <div class="gafi-desc">Consultar el Comité de Sanciones del Consejo de Seguridad de la ONU.</div>
+              </a>
+            </div>
+          </div>
+          <div class="caso-panel">
+            <div class="caso-panel-title">📁 Otros casos del mismo cliente</div>
+            <div id="casos-previos-lista"></div>
+          </div>
+        </div>
+
+        <!-- Red de lavado -->
+        <div id="tab-caso-red-lavado" class="tab-content">
+          <div class="caso-panel">
+            <div class="caso-panel-title">🕸️ Red de posible lavado de dinero</div>
+            <div class="red-canvas" id="red-canvas-main">
+              <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" id="red-svg"></svg>
+              <!-- Nodos posicionados -->
+              <div class="red-node centro" style="top:50%;left:50%;transform:translate(-50%,-50%);">
+                <div style="font-size:9px;color:var(--rojo);margin-bottom:3px;">CASO CENTRAL</div>
+                <div id="red-node-central">Constructora del Norte</div>
+              </div>
+              <div class="red-node relacionado" style="top:12%;left:18%;">
+                <div style="font-size:9px;color:var(--amarillo);margin-bottom:3px;">ACCIONISTA</div>
+                <div>Inversiones GR SA</div>
+                <div style="font-size:9px;color:var(--texto-dim);">🇵🇦 Panamá</div>
+              </div>
+              <div class="red-node empresa" style="top:12%;left:65%;">
+                <div style="font-size:9px;color:var(--azul);margin-bottom:3px;">DIRECTOR GRAL</div>
+                <div>Roberto Gómez Leal</div>
+              </div>
+              <div class="red-node relacionado" style="top:70%;left:12%;">
+                <div style="font-size:9px;color:var(--amarillo);margin-bottom:3px;">CÓNYUGE</div>
+                <div>M.F. Torres Ríos</div>
+              </div>
+              <div class="red-node empresa" style="top:72%;left:64%;">
+                <div style="font-size:9px;color:var(--azul);margin-bottom:3px;">HERMANO / CONTADOR</div>
+                <div>Carlos Gómez Leal</div>
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-accion" onclick="agregarNodoRed()">+ Agregar nodo</button>
+              <button class="btn-accion" onclick="exportarRedPNG()">📥 Exportar imagen</button>
+              <div style="display:flex;align-items:center;gap:10px;margin-left:auto;font-size:11px;color:var(--texto-dim);">
+                <span style="color:var(--rojo);">■</span> Caso central
+                <span style="color:var(--amarillo);">■</span> Relacionados
+                <span style="color:var(--azul);">■</span> Personas
+              </div>
+            </div>
+          </div>
+          <div class="caso-panel">
+            <div class="caso-panel-title">🔗 Casos vinculados a esta red</div>
+            <div class="alerta-row pendiente" onclick="abrirModal('ALT-2026-0091')" style="cursor:pointer;">
+              <div class="al-info"><div class="al-nombre">Coincidencia en Lista OFAC SDN</div><div class="al-meta"><span>📋 ALT-2026-0091</span><span>👤 Transportes del Norte SA de CV</span></div></div>
+              <span class="badge badge-pendiente">Pendiente</span>
+            </div>
+            <div class="alerta-row revision" onclick="abrirModal('ALT-2026-0081')" style="cursor:pointer;">
+              <div class="al-info"><div class="al-nombre">Coincidencia en Lista ONU</div><div class="al-meta"><span>📋 ALT-2026-0081</span><span>👤 Constructora del Norte SA de CV</span></div></div>
+              <span class="badge badge-revision">En revisión</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Redacción del caso -->
+        <div id="tab-caso-redaccion" class="tab-content">
+          <div class="caso-panel">
+            <div class="caso-panel-title">📝 Redacción del caso · Borrador</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+              <button class="btn-accion" onclick="generarBorrador()">🤖 Generar borrador con IA</button>
+              <button class="btn-accion" onclick="insertarPlantilla('hechos')">📌 Insertar: Hechos</button>
+              <button class="btn-accion" onclick="insertarPlantilla('analisis')">📌 Insertar: Análisis</button>
+              <button class="btn-accion" onclick="insertarPlantilla('conclusion')">📌 Insertar: Conclusión</button>
+            </div>
+            <textarea class="caso-redaccion" id="caso-redaccion-texto" placeholder="Redacta aquí el caso completo: descripción de hechos, análisis de operaciones, relaciones relevantes y conclusión. Este texto se usará para armar el reporte oficial..."></textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+              <div style="font-size:10px;color:var(--texto-faint);">Último guardado: nunca</div>
+              <button class="btn-accion" onclick="guardarRedaccion()">💾 Guardar borrador</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentación y anexos -->
+        <div id="tab-caso-doc-anexos" class="tab-content">
+          <div class="caso-panel">
+            <div class="caso-panel-title">📎 Documentación del caso y anexos</div>
+            <div style="background:var(--bg3);border:2px dashed var(--border-strong);border-radius:10px;padding:32px;text-align:center;margin-bottom:14px;cursor:pointer;" onclick="simularSubida()">
+              <div style="font-size:24px;margin-bottom:8px;">📂</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Arrastrar archivos o hacer clic</div>
+              <div style="font-size:11px;color:var(--texto-dim);">PDF, JPG, PNG, DOCX · Máx. 10 MB por archivo</div>
+            </div>
+            <div id="anexos-lista">
+              <div class="op-row"><div class="op-tipo" style="color:var(--verde);">📄 PDF</div><div style="flex:1;font-size:12px;">Contrato de obra 2024 — Constructora del Norte.pdf</div><div class="op-meta">Subido 01/04/2026</div></div>
+              <div class="op-row"><div class="op-tipo" style="color:var(--azul);">🖼️ IMG</div><div style="flex:1;font-size:12px;">Comprobante transferencia OFAC.png</div><div class="op-meta">Subido 31/03/2026</div></div>
+            </div>
+          </div>
+          <div class="caso-panel">
+            <div class="caso-panel-title">📥 Exportar caso completo</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="info-card" style="cursor:pointer;" onclick="exportarWord()">
+                <div class="info-label">WORD / DOCX</div>
+                <div class="info-val">📝 Reporte completo con red de lavado, operaciones y análisis GAFI</div>
+              </div>
+              <div class="info-card" style="cursor:pointer;" onclick="exportarPDF()">
+                <div class="info-label">PDF OFICIAL</div>
+                <div class="info-val">📋 Formato listo para envío a SHCP/UIF — Reporte de Operación Inusual</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: sidebar del caso -->
+      <div>
+        <!-- Info rápida del caso -->
+        <div class="caso-panel">
+          <div class="caso-panel-title">ℹ️ Información del caso</div>
+          <div style="display:flex;flex-direction:column;gap:8px;" id="caso-info-sidebar"></div>
+        </div>
+
+        <!-- Asignación -->
+        <div class="caso-panel">
+          <div class="caso-panel-title">👤 Asignación</div>
+          <div style="margin-bottom:10px;">
+            <div class="info-label">Analista asignado</div>
+            <div style="font-size:13px;font-weight:600;margin-top:4px;" id="caso-asignado">Jose Alfonso Fajardo Leyva</div>
+          </div>
+          <div style="margin-bottom:10px;">
+            <div class="info-label">Prioridad</div>
+            <div style="margin-top:4px;" id="caso-prioridad-badge"><span class="badge badge-alto">Crítica</span></div>
+          </div>
+          <div>
+            <div class="info-label" style="margin-bottom:6px;">SLA de atención</div>
+            <div style="font-size:12px;color:var(--rojo);font-weight:700;">⏰ Vence en 2 días hábiles</div>
+          </div>
+        </div>
+
+        <!-- Comentarios -->
+        <div class="caso-panel">
+          <div class="caso-panel-title">💬 Comentarios del equipo</div>
+          <div id="caso-comentarios-lista" style="margin-bottom:12px;"></div>
+          <div class="input-group">
+            <textarea id="nuevo-comentario" placeholder="Escribe un comentario..." style="min-height:60px;font-size:12px;"></textarea>
+          </div>
+          <button class="btn-accion" style="margin-top:8px;width:100%;" onclick="agregarComentarioCaso()">Agregar →</button>
+        </div>
+
+        <!-- Historial de estatus -->
+        <div class="caso-panel">
+          <div class="caso-panel-title">📅 Historial del caso</div>
+          <div id="caso-historial"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CONFIGURACIÓN ══════════════ -->
+<div id="screen-configuracion" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">PLD · Configuración del Sistema</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-config">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="irDash()">← Inicio</button>
+    <div class="section-eyebrow">Módulo 03</div>
+    <div class="section-title">Configuración</div>
+    <div class="section-sub">Ajusta umbrales operativos, catálogo de países con nivel de riesgo y escenarios del motor de detección.</div>
+    <div class="config-grid">
+      <div class="config-card">
+        <div class="config-card-title">⚡ Umbrales de Operación</div>
+        <div class="config-card-desc">Montos acumulados que disparan alertas automáticas por escenario.</div>
+        <div class="config-row"><span class="config-row-label">Desvío de perfil (mensual)</span><input class="config-input" value="$500,000 MXN"></div>
+        <div class="config-row"><span class="config-row-label">Efectivo en ventanilla (diario)</span><input class="config-input" value="$100,000 MXN"></div>
+        <div class="config-row"><span class="config-row-label">Transferencias internacionales</span><input class="config-input" value="$200,000 MXN"></div>
+        <div class="config-row"><span class="config-row-label">Fraccionamiento acumulado</span><input class="config-input" value="$50,000 MXN"></div>
+        <div class="config-row"><span class="config-row-label">Retiros ATM (semanal)</span><input class="config-input" value="$80,000 MXN"></div>
+        <div class="config-row"><span class="config-row-label">Múltiples cargos internac.</span><input class="config-input" value="$150,000 MXN"></div>
+        <button class="btn-guardar" onclick="guardar()">Guardar cambios</button>
+      </div>
+      <div class="config-card">
+        <div class="config-card-title">🌍 Catálogo de Países — Nivel de Riesgo</div>
+        <div class="config-card-desc">Asigna el nivel de riesgo a cada país según los listados GAFI y evaluaciones internas.</div>
+        <div class="pais-table-row header"><span>País</span><span>Nivel de riesgo</span><span>Activo</span></div>
+        <div class="pais-table-row"><span>🇵🇦 Panamá</span><select class="riesgo-select alto" onchange="updateRS(this)"><option value="alto" selected>Alto</option><option value="medio">Medio</option><option value="bajo">Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇻🇪 Venezuela</span><select class="riesgo-select alto" onchange="updateRS(this)"><option value="alto" selected>Alto</option><option value="medio">Medio</option><option value="bajo">Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇷🇺 Rusia</span><select class="riesgo-select alto" onchange="updateRS(this)"><option value="alto" selected>Alto</option><option value="medio">Medio</option><option value="bajo">Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇮🇷 Irán</span><select class="riesgo-select alto" onchange="updateRS(this)"><option value="alto" selected>Alto</option><option value="medio">Medio</option><option value="bajo">Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇰🇵 Corea del Norte</span><select class="riesgo-select alto" onchange="updateRS(this)"><option value="alto" selected>Alto</option><option value="medio">Medio</option><option value="bajo">Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇨🇴 Colombia</span><select class="riesgo-select medio" onchange="updateRS(this)"><option value="alto">Alto</option><option value="medio" selected>Medio</option><option value="bajo">Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇧🇿 Belice</span><select class="riesgo-select medio" onchange="updateRS(this)"><option value="alto">Alto</option><option value="medio" selected>Medio</option><option value="bajo">Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇨🇳 China</span><select class="riesgo-select medio" onchange="updateRS(this)"><option value="alto">Alto</option><option value="medio" selected>Medio</option><option value="bajo">Bajo</option></select><div class="toggle" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇺🇸 Estados Unidos</span><select class="riesgo-select bajo" onchange="updateRS(this)"><option value="alto">Alto</option><option value="medio">Medio</option><option value="bajo" selected>Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="pais-table-row"><span>🇪🇸 España</span><select class="riesgo-select bajo" onchange="updateRS(this)"><option value="alto">Alto</option><option value="medio">Medio</option><option value="bajo" selected>Bajo</option></select><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <button class="btn-guardar" onclick="guardar()">Guardar catálogo</button>
+      </div>
+      <div class="config-card">
+        <div class="config-card-title">📋 Escenarios de Detección</div>
+        <div class="config-card-desc">Habilita o deshabilita los escenarios que corre el motor de reglas automáticamente.</div>
+        <div class="config-row"><span class="config-row-label">Desvío de perfil transaccional</span><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="config-row"><span class="config-row-label">Operaciones en efectivo</span><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="config-row"><span class="config-row-label">Coincidencia en listas (OFAC, ONU…)</span><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="config-row"><span class="config-row-label">Fraccionamiento de operaciones</span><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="config-row"><span class="config-row-label">Transferencias a países de riesgo</span><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="config-row"><span class="config-row-label">Clientes inactivos con movimiento súbito</span><div class="toggle on" onclick="toggleEl(this)"></div></div>
+        <div class="config-row"><span class="config-row-label">Múltiples cuentas misma IP</span><div class="toggle" onclick="toggleEl(this)"></div></div>
+        <div class="config-row"><span class="config-row-label">Operaciones en fines de semana</span><div class="toggle" onclick="toggleEl(this)"></div></div>
+        <button class="btn-guardar" onclick="guardar()">Guardar cambios</button>
+      </div>
+      <div class="config-card">
+        <div class="config-card-title">🔔 Parámetros Operativos</div>
+        <div class="config-card-desc">Tiempos de gestión, revisión de expedientes y ventanas de detección.</div>
+        <div class="config-row"><span class="config-row-label">SLA atención alerta (días hábiles)</span><input class="config-input" value="5 días"></div>
+        <div class="config-row"><span class="config-row-label">Revisión KYC (riesgo alto)</span><input class="config-input" value="6 meses"></div>
+        <div class="config-row"><span class="config-row-label">Revisión KYC (riesgo medio)</span><input class="config-input" value="12 meses"></div>
+        <div class="config-row"><span class="config-row-label">Revisión KYC (riesgo bajo)</span><input class="config-input" value="24 meses"></div>
+        <div class="config-row"><span class="config-row-label">Días inactividad para bandera</span><input class="config-input" value="90 días"></div>
+        <div class="config-row"><span class="config-row-label">Ventana fraccionamiento</span><input class="config-input" value="72 horas"></div>
+        <button class="btn-guardar" onclick="guardar()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PRODUCTIVIDAD (Director / Subdirector / Gerente) ══════════════ -->
+<div id="screen-productividad" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">PLD · Dashboard de Productividad</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-prod">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="irDash()">← Inicio</button>
+    <div class="section-eyebrow">Módulo de Gestión</div>
+    <div class="section-title">Dashboard Ejecutivo de Productividad</div>
+    <div class="section-sub" id="prod-sub">Rendimiento general del equipo PLD · Mes en curso</div>
+
+    <!-- KPIs ejecutivos -->
+    <div class="prod-grid" id="prod-kpis"></div>
+
+    <!-- Por tipo de alerta -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+      <div class="caso-panel">
+        <div class="caso-panel-title">📊 Alertas por tipo de escenario</div>
+        <div id="prod-por-tipo"></div>
+      </div>
+      <div class="caso-panel">
+        <div class="caso-panel-title">📈 Tendencia semanal</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;"><span style="min-width:80px;color:var(--texto-dim);">Sem 1 (Mar 3)</span><div class="bar-bg" style="flex:1;height:8px;"><div class="bar-fill bar-alto" style="width:65%"></div></div><span class="mono" style="color:var(--rojo);">13</span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;"><span style="min-width:80px;color:var(--texto-dim);">Sem 2 (Mar 10)</span><div class="bar-bg" style="flex:1;height:8px;"><div class="bar-fill bar-medio" style="width:45%"></div></div><span class="mono" style="color:var(--amarillo);">9</span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;"><span style="min-width:80px;color:var(--texto-dim);">Sem 3 (Mar 17)</span><div class="bar-bg" style="flex:1;height:8px;"><div class="bar-fill bar-medio" style="width:55%"></div></div><span class="mono" style="color:var(--amarillo);">11</span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;"><span style="min-width:80px;color:var(--texto-dim);">Sem 4 (Mar 24)</span><div class="bar-bg" style="flex:1;height:8px;"><div class="bar-fill bar-bajo" style="width:40%"></div></div><span class="mono" style="color:var(--verde);">8</span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;"><span style="min-width:80px;color:var(--texto-dim);">Sem 5 (Mar 31)</span><div class="bar-bg" style="flex:1;height:8px;"><div class="bar-fill bar-alto" style="width:75%"></div></div><span class="mono" style="color:var(--rojo);">15</span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;"><span style="min-width:80px;color:var(--texto-dim);">Sem 6 (Abr 1)</span><div class="bar-bg" style="flex:1;height:8px;"><div class="bar-fill bar-bajo" style="width:20%"></div></div><span class="mono" style="color:var(--verde);">4</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de equipo -->
+    <div class="caso-panel">
+      <div class="caso-panel-title" style="justify-content:space-between;">
+        <span>👥 Rendimiento por analista</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-accion" onclick="abrirModalReasignar()">🔄 Reasignar alertas</button>
+        </div>
+      </div>
+      <div id="prod-tabla-equipo"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ REVISIÓN SUBDIRECTORA ══════════════ -->
+<div id="screen-revision-casos" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">PLD · Revisión de Conclusiones</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-revision">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="irDash()">← Inicio</button>
+    <div class="section-eyebrow">Módulo de Supervisión</div>
+    <div class="section-title">Revisión de Conclusiones y Comité</div>
+    <div class="section-sub">Casos listos para revisión de conclusiones, liberación o envío a Comité de Comunicación y Control.</div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="tabRevision(event,'pendientes-rev')">🔴 Por revisar (3)</button>
+      <button class="tab-btn" onclick="tabRevision(event,'en-comite')">🟣 En Comité (2)</button>
+      <button class="tab-btn" onclick="tabRevision(event,'aprobados')">🟢 Aprobados / Cerrados</button>
+    </div>
+
+    <!-- Por revisar -->
+    <div id="tab-pendientes-rev" class="tab-content active">
+      <div class="revision-card">
+        <div class="revision-header">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:4px;">Desvío de Perfil Transaccional</div>
+            <div class="revision-analista">📋 ALT-2026-0089 · Analista: Jose Alfonso Fajardo Leyva · 02/04/2026</div>
+          </div>
+          <span class="badge badge-pendiente">Esperando revisión</span>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--texto-dim);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;">Conclusión del analista</div>
+        <div class="revision-conclusion">El cliente Constructora del Norte SA de CV presentó operaciones por $1,240,000 MXN en marzo 2026, superando en 148% el perfil declarado. Las operaciones provienen de 4 empresas no identificadas en el expediente. El análisis de las operaciones y de las relacionadas con Inversiones GR (Panamá) presenta indicios de posible estructuración para enmascarar el origen de recursos. Se recomienda elevar a Comité de Comunicación y Control para posible reporte a UIF.</div>
+        <div class="revision-actions">
+          <button class="btn-accion success" onclick="aceptarConclusionModal('ALT-2026-0089')">✓ Aceptar conclusión</button>
+          <button class="btn-accion danger" onclick="regresarAnalisis('ALT-2026-0089')">↩ Regresar al analista</button>
+          <button class="btn-accion morado" onclick="enviarComite('ALT-2026-0089')">⬆ Enviar a Comité</button>
+          <button class="btn-accion" onclick="verWordCaso('ALT-2026-0089')">📄 Ver reporte Word</button>
+        </div>
+      </div>
+      <div class="revision-card">
+        <div class="revision-header">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:4px;">Operaciones en Efectivo — Fraccionamiento</div>
+            <div class="revision-analista">📋 ALT-2026-0090 · Analista: Jose Alfonso Fajardo Leyva · 01/04/2026</div>
+          </div>
+          <span class="badge badge-revision">En análisis</span>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--texto-dim);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;">Conclusión del analista</div>
+        <div class="revision-conclusion">Se detectaron 4 depósitos en efectivo sumando $320,000 MXN en 48 horas desde distintas sucursales. El cliente Carlos Eduardo Mendoza Ruiz no ha presentado justificación del origen de recursos. Se recomienda descartar — los depósitos se alinean con el perfil de comercio al por mayor, aunque la distribución geográfica es atípica. Se sugiere solicitar comprobantes de ventas adicionales.</div>
+        <div class="revision-actions">
+          <button class="btn-accion success" onclick="aceptarConclusionModal('ALT-2026-0090')">✓ Aceptar y cerrar</button>
+          <button class="btn-accion danger" onclick="regresarAnalisis('ALT-2026-0090')">↩ Regresar al analista</button>
+          <button class="btn-accion" onclick="verWordCaso('ALT-2026-0090')">📄 Ver reporte</button>
+        </div>
+      </div>
+      <div class="revision-card">
+        <div class="revision-header">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:4px;">Coincidencia en Lista OFAC SDN</div>
+            <div class="revision-analista">📋 ALT-2026-0091 · Analista: Jose Alfonso Fajardo Leyva · 31/03/2026</div>
+          </div>
+          <span class="badge badge-alto">Alta prioridad</span>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--texto-dim);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;">Conclusión del analista</div>
+        <div class="revision-conclusion">Transportes del Norte SA de CV presenta coincidencia del 91% con registro en la lista SDN de la OFAC. El análisis de la red de relacionados revela vínculos con Logística BN SA (empresa registrada en EE.UU.) y patrones de depósitos desde ciudades fronterizas. Se recomienda elevar urgentemente a Comité y considerar bloqueo preventivo de operaciones.</div>
+        <div class="revision-actions">
+          <button class="btn-accion morado" onclick="enviarComite('ALT-2026-0091')">⬆ Enviar a Comité URGENTE</button>
+          <button class="btn-accion danger" onclick="regresarAnalisis('ALT-2026-0091')">↩ Solicitar más análisis</button>
+          <button class="btn-accion" onclick="verWordCaso('ALT-2026-0091')">📄 Ver reporte Word</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- En Comité -->
+    <div id="tab-en-comite" class="tab-content">
+      <div class="revision-card" style="border-color:var(--morado-border);">
+        <div class="revision-header">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:4px;">Transferencia a País de Alto Riesgo — Comité</div>
+            <div class="revision-analista">📋 ALT-2026-0087 · Presentado a Comité: 27/03/2026</div>
+          </div>
+          <span class="badge badge-comite">En Comité</span>
+        </div>
+        <div class="revision-conclusion">Caso en revisión por Comité de Comunicación y Control. Transferencia a Panamá por $450,000 MXN de Grupo Industrial del Noreste. Documentación presentada (contrato). En análisis final para determinación de reporte a UIF.</div>
+        <div class="revision-actions">
+          <button class="btn-accion success" onclick="aprobarReporte()">✅ Aprobar reporte UIF</button>
+          <button class="btn-accion danger" onclick="rechazarReporte()">✗ No procede reporte</button>
+          <button class="btn-accion" onclick="verWordCaso('ALT-2026-0087')">📄 Ver expediente completo</button>
+        </div>
+      </div>
+      <div class="revision-card" style="border-color:var(--morado-border);">
+        <div class="revision-header">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:4px;">Coincidencia en Lista ONU — Revisión extendida</div>
+            <div class="revision-analista">📋 ALT-2026-0081 · Presentado a Comité: 25/03/2026</div>
+          </div>
+          <span class="badge badge-comite">En Comité</span>
+        </div>
+        <div class="revision-conclusion">Constructora del Norte SA de CV analizada por coincidencia 62% en lista ONU. Comité revisando si se trata de homonimia o vínculo real. Documentación adicional recibida parcialmente.</div>
+        <div class="revision-actions">
+          <button class="btn-accion success" onclick="aprobarReporte()">✅ Confirmar homonimia — cerrar</button>
+          <button class="btn-accion morado" onclick="escalarUIF()">📤 Proceder con reporte UIF</button>
+          <button class="btn-accion" onclick="verWordCaso('ALT-2026-0081')">📄 Ver expediente</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aprobados -->
+    <div id="tab-aprobados" class="tab-content">
+      <div style="color:var(--texto-dim);padding:20px;text-align:center;background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px;">
+        <div style="font-size:24px;margin-bottom:8px;">✅</div>
+        <div style="font-size:13px;">Los casos aprobados y cerrados del mes aparecerán aquí con sus conclusiones finales.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ GESTIÓN DE EQUIPO (Gerente) ══════════════ -->
+<div id="screen-gestion-equipo" class="screen">
+  <div class="topbar">
+    <div class="tl">
+      <div class="tl-logo"><img src="logo_KB.png" alt="K"></div>
+      <div class="tdiv"></div><span class="tmodule">PLD · Gestión de Mi Equipo</span>
+    </div>
+    <div class="tr"><span class="tuser" id="top-user-gestion">👤 —</span><button class="btn-logout" onclick="ir('login')">Cerrar sesión</button></div>
+  </div>
+  <div class="content">
+    <button class="btn-back" onclick="irDash()">← Inicio</button>
+    <div class="section-eyebrow">Gerencia de Monitoreo</div>
+    <div class="section-title">Gestión de Equipo</div>
+    <div class="section-sub">Configura carga de trabajo, tipos de alerta por analista y supervisa el rendimiento de tu equipo directo.</div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="tabGestion(event,'carga-trabajo')">⚖️ Carga de Trabajo</button>
+      <button class="tab-btn" onclick="tabGestion(event,'tipos-alerta')">🎯 Tipos de Alerta por Analista</button>
+      <button class="tab-btn" onclick="tabGestion(event,'reasignacion-ger')">🔄 Reasignación</button>
+    </div>
+
+    <!-- Carga de trabajo -->
+    <div id="tab-carga-trabajo" class="tab-content active">
+      <div class="caso-panel">
+        <div class="caso-panel-title">⚖️ Carga de trabajo del equipo</div>
+        <div id="carga-trabajo-lista"></div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px;">
+          <button class="btn-accion primary" onclick="guardar()">💾 Guardar configuración de carga</button>
+          <button class="btn-accion" onclick="redistribuirCarga()">⚖️ Redistribuir automáticamente</button>
+        </div>
+      </div>
+      <div class="caso-panel" style="margin-top:12px;">
+        <div class="caso-panel-title">📊 Dashboard de operatividad del equipo</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <div class="equipo-stat"><div class="equipo-stat-num verde">85%</div><div class="equipo-stat-label">SLA cumplimiento</div></div>
+          <div class="equipo-stat"><div class="equipo-stat-num amarillo">2.4d</div><div class="equipo-stat-label">Tiempo prom. resolución</div></div>
+          <div class="equipo-stat"><div class="equipo-stat-num rojo" style="color:var(--rojo)">4</div><div class="equipo-stat-label">Alertas críticas activas</div></div>
+          <div class="equipo-stat"><div class="equipo-stat-num">47</div><div class="equipo-stat-label">Cerradas este mes</div></div>
+          <div class="equipo-stat"><div class="equipo-stat-num morado" style="color:var(--morado)">2</div><div class="equipo-stat-label">Casos en comité</div></div>
+          <div class="equipo-stat"><div class="equipo-stat-num azul" style="color:var(--azul)">3</div><div class="equipo-stat-label">Analistas activos</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipos de alerta -->
+    <div id="tab-tipos-alerta" class="tab-content">
+      <div class="caso-panel">
+        <div class="caso-panel-title">🎯 Configuración de alertas por analista y nivel de riesgo</div>
+        <div id="tipos-alerta-config"></div>
+        <button class="btn-accion primary" style="margin-top:14px;" onclick="guardar()">💾 Guardar configuración</button>
+      </div>
+    </div>
+
+    <!-- Reasignación gerente -->
+    <div id="tab-reasignacion-ger" class="tab-content">
+      <div class="caso-panel">
+        <div class="caso-panel-title">🔄 Reasignación de alertas</div>
+        <div id="reasig-lista-ger"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODALES ══════════════ -->
+
+<!-- Modal alerta estándar -->
+<div class="modal-overlay" id="modal-alerta">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-title" id="modal-titulo">—</div><div class="modal-folio" id="modal-folio">—</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-alerta')">✕</button>
+    </div>
+    <div class="modal-section"><div class="modal-sec-title">Cliente generador</div><div class="modal-detail" id="modal-cliente">—</div></div>
+    <div class="modal-section"><div class="modal-sec-title">Monto / Importe involucrado</div><div class="modal-monto" id="modal-monto">—</div></div>
+    <div class="modal-section"><div class="modal-sec-title">Descripción del alertamiento</div><div class="modal-detail" id="modal-descripcion">—</div></div>
+    <div class="modal-section"><div class="modal-sec-title">Resolución / Comentarios de gestión</div><div class="modal-detail" id="modal-resolucion">—</div></div>
+    <div class="modal-actions">
+      <button class="btn-guardar" style="margin-top:0" onclick="cerrarModal('modal-alerta')">Cerrar</button>
+      <button class="btn-buscar" style="flex:1;border-radius:7px;padding:8px 18px;font-weight:700;font-size:12px" onclick="irClienteDesdeModal()">Ver expediente →</button>
+      <button class="btn-accion success" style="font-size:12px;" onclick="irAnalisisDesdeMod()">🔎 Analizar caso →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal GAFI / Indicadores -->
+<div class="modal-overlay" id="modal-gafi">
+  <div class="modal-box modal-box-wide">
+    <div class="modal-header">
+      <div><div class="modal-title">📋 Análisis GAFI — Indicadores de Riesgo</div><div class="modal-folio">Basado en las 40 Recomendaciones del GAFI y tipologías SHCP</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-gafi')">✕</button>
+    </div>
+    <div class="modal-section">
+      <div class="modal-sec-title">Indicadores aplicables al caso actual</div>
+      <div class="gafi-item"><div class="gafi-titulo"><span>R.7 · Sanciones Financieras Dirigidas</span><span class="gafi-nivel" style="background:var(--rojo-dim);color:var(--rojo);">ALTO</span></div><div class="gafi-desc">El cliente presenta coincidencia en lista SDN/OFAC. Se debe congelar preventivamente y reportar a la UIF en las próximas 24 horas conforme al Art. 115 LFPIORPI.</div></div>
+      <div class="gafi-item"><div class="gafi-titulo"><span>R.10 · Debida Diligencia del Cliente</span><span class="gafi-nivel" style="background:var(--rojo-dim);color:var(--rojo);">ALTO</span></div><div class="gafi-desc">Documentación KYC incompleta: constancia SAT vencida, estados financieros 2024 pendientes. La DDC debe aplicarse de forma reforzada dado el nivel de riesgo.</div></div>
+      <div class="gafi-item"><div class="gafi-titulo"><span>R.20 · Reporte de Operaciones Sospechosas</span><span class="gafi-nivel" style="background:var(--amarillo-dim);color:var(--amarillo);">MEDIO</span></div><div class="gafi-desc">Las operaciones presentan patrones consistentes con estructuración y fraccionamiento. Se debe evaluar si procede ROS ante la UIF.</div></div>
+      <div class="gafi-item"><div class="gafi-titulo"><span>R.24 · Beneficiario Final</span><span class="gafi-nivel" style="background:var(--amarillo-dim);color:var(--amarillo);">MEDIO</span></div><div class="gafi-desc">El accionista mayoritario (Inversiones GR, Panamá) no tiene beneficiario final identificado en el expediente. Se requiere obtener cadena de control.</div></div>
+      <div class="gafi-item"><div class="gafi-titulo"><span>R.26 · Supervisión de Grupos Financieros</span><span class="gafi-nivel" style="background:var(--verde-dim);color:var(--verde);">BAJO</span></div><div class="gafi-desc">Verificar si el grupo empresarial tiene otras entidades financieras vinculadas que requieran reporte consolidado.</div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-accion primary" onclick="cerrarModal('modal-gafi')">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Preguntas IA -->
+<div class="modal-overlay" id="modal-preguntas-ia">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-title">🤖 Sugerencias de la IA</div><div class="modal-folio">Preguntas recomendadas para el promotor / cliente</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-preguntas-ia')">✕</button>
+    </div>
+    <div class="modal-section">
+      <div class="modal-sec-title">Preguntas sugeridas basadas en el análisis del caso</div>
+      <div class="pregunta-item">1. ¿Cuál es el origen específico de los depósitos realizados desde Tijuana, Cd. Juárez y Monterrey en la misma semana? Solicitar comprobantes de cada uno.</div>
+      <div class="pregunta-item">2. ¿Quién es el beneficiario final de Inversiones GR SA de CV con sede en Panamá? Solicitar certificado de estructura corporativa actualizado.</div>
+      <div class="pregunta-item">3. ¿Las empresas que realizaron los depósitos están listadas como clientes en los contratos de obra del cliente? Solicitar contratos vigentes.</div>
+      <div class="pregunta-item">4. ¿Los estados financieros 2024 reflejan los ingresos declarados de $1.2M–$3M MXN/mes? Solicitar balance general y estado de resultados.</div>
+      <div class="pregunta-item">5. ¿La comprobante de domicilio vencido corresponde a la dirección actual de operaciones? Solicitar documento vigente y visita de verificación.</div>
+      <div class="pregunta-item">6. ¿El representante legal tiene conocimiento de la coincidencia en la lista OFAC? Citar al cliente para entrevista formal y documentar su respuesta.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-accion primary" onclick="cerrarModal('modal-preguntas-ia')">Usar en el caso</button>
+      <button class="btn-accion" onclick="cerrarModal('modal-preguntas-ia')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cerrar / Concluir caso -->
+<div class="modal-overlay" id="modal-cerrar-caso">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-title">Concluir caso</div><div class="modal-folio" id="cerrar-folio-label">—</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-cerrar-caso')">✕</button>
+    </div>
+    <div class="modal-section">
+      <div class="modal-sec-title">Decisión de conclusión</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <label style="display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
+          <input type="radio" name="conclusion" value="descartar"> <span>🟢 Descartar alerta — operaciones justificadas</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
+          <input type="radio" name="conclusion" value="monitoreo"> <span>🟡 Mantener en monitoreo ampliado — sin reporte</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--rojo-dim);border:1px solid var(--rojo-border);border-radius:8px;cursor:pointer;font-size:13px;">
+          <input type="radio" name="conclusion" value="comite"> <span>🟣 Elevar a Comité de Comunicación y Control</span>
+        </label>
+      </div>
+      <div class="input-group">
+        <label>Justificación / conclusión del análisis <span style="color:var(--rojo)">*</span></label>
+        <textarea id="conclusion-texto" placeholder="Describe brevemente los hallazgos, el análisis realizado y la justificación de la decisión tomada. Este texto formará parte del expediente oficial." style="min-height:120px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-accion primary" onclick="guardarConclusion()">✓ Confirmar conclusión</button>
+      <button class="btn-accion" onclick="cerrarModal('modal-cerrar-caso')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Reasignación Director -->
+<div class="modal-overlay" id="modal-reasignar">
+  <div class="modal-box modal-box-wide">
+    <div class="modal-header">
+      <div><div class="modal-title">🔄 Reasignación de alertas</div><div class="modal-folio">Selecciona las alertas y el analista destino</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-reasignar')">✕</button>
+    </div>
+    <div class="modal-section">
+      <div class="modal-sec-title">Alertas pendientes de asignación</div>
+      <div id="reasig-modal-lista"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-sec-title">Reasignar seleccionadas a</div>
+      <select class="filter-select" id="reasig-destino" style="width:100%;margin-bottom:14px;">
+        <option value="">-- Selecciona analista --</option>
+        <option value="jfajardo">Jose Alfonso Fajardo Leyva</option>
+        <option value="rmorales">Roberto Morales Vega</option>
+        <option value="lgomez">Laura Gómez Hernández</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-accion primary" onclick="confirmarReasignacion()">✓ Reasignar</button>
+      <button class="btn-accion" onclick="cerrarModal('modal-reasignar')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Word Preview -->
+<div class="modal-overlay" id="modal-word-preview">
+  <div class="modal-box modal-box-wide">
+    <div class="modal-header">
+      <div><div class="modal-title">📄 Reporte del caso</div><div class="modal-folio" id="word-preview-folio">—</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-word-preview')">✕</button>
+    </div>
+    <div style="background:white;color:#1a1a1a;padding:32px;border-radius:10px;font-size:12px;line-height:1.8;" id="word-preview-content">
+      <!-- El contenido se genera dinámicamente -->
+    </div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn-accion primary" onclick="exportarWord()">📥 Descargar Word</button>
+      <button class="btn-accion" onclick="cerrarModal('modal-word-preview')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="saved-toast" id="toast">✓ Cambios guardados correctamente</div>
+
+<script>
+// ════════════════════════════════════════
+//  PERFILES DE USUARIO
+// ════════════════════════════════════════
+const PERFILES = {
+  director: {
+    nombre: 'Jorge Daniel Gonzalez Arostico',
+    email: 'jorgonzalez@kapital.com',
+    rol: 'Director Modelos No Financieros',
+    tipo: 'director',
+    badge: 'badge-director',
+    badgeTexto: 'Director',
+    modulos: ['busqueda-cliente','alertas-general','productividad'],
+    soloResumen: true,
+    verWordComite: true
+  },
+  subdirector: {
+    nombre: 'Jacqueline Barajas Lemus',
+    email: 'jbarajas@kapital.com',
+    rol: 'Subdirectora de Monitoreo',
+    tipo: 'subdirector',
+    badge: 'badge-subdirector',
+    badgeTexto: 'Subdirectora',
+    modulos: ['busqueda-cliente','alertas-general','productividad','revision-casos'],
+    soloResumen: false
+  },
+  gerente: {
+    nombre: 'Nicole De Los Reyes Ruiz',
+    email: 'nreyesr@kapital.com',
+    rol: 'Gerente de Monitoreo',
+    tipo: 'gerente',
+    badge: 'badge-gerente',
+    badgeTexto: 'Gerente',
+    modulos: ['busqueda-cliente','alertas-general','productividad','gestion-equipo'],
+    soloResumen: false
+  },
+  analista: {
+    nombre: 'Jose Alfonso Fajardo Leyva',
+    email: 'jfajardo@kapital.com',
+    rol: 'Analista de Monitoreo',
+    tipo: 'analista',
+    badge: 'badge-analista',
+    badgeTexto: 'Analista',
+    modulos: ['busqueda-cliente','alertas-general'],
+    soloResumen: false
+  }
+};
+
+let perfilActual = null;
+let notasCaso = [];
+let comentariosCaso = [
+  {autor:'Ana García',fecha:'31/03/2026 · 09:15',texto:'Se detectó coincidencia en OFAC. Revisar urgente vinculación con Inversiones GR en Panamá.'},
+  {autor:'Luis Moreno',fecha:'01/04/2026 · 11:30',texto:'Solicitada documentación adicional. Sin respuesta del cliente al cuestionario.'},
+];
+
+// ════════════════════════════════════════
+//  DATOS
+// ════════════════════════════════════════
+const CLIENTES = [
+  {id:'KAP-004821',nombre:'Constructora del Norte SA de CV',rfc:'CDN990101AAA',tipo:'Moral',riesgo:'alto',avatar:'🏢',actividad:'Construcción e infraestructura',nacimiento:'01/01/1999',nacionalidad:'🇲🇽 Mexicana',domicilio:'Av. Insurgentes Sur 1234, Col. Del Valle, CDMX',sucursal:'Insurgentes Sur · SUC-023',curp:'—',
+    listas:[{lista:'OFAC SDN',nombre_lista:'Constructora del Norte S.A.',tipo:'Empresa',pct:87},{lista:'ONU Sanciones',nombre_lista:'CDN Constructora Norte',tipo:'Empresa',pct:62}],
+    comentarios:[{autor:'Ana García',fecha:'12/03/2026 · 10:40',texto:'Cliente menciona operaciones en 3 estados del norte. Se solicitó documentación adicional.'},{autor:'Luis Moreno',fecha:'05/01/2026 · 09:15',texto:'Perfil declarado coincide con movimientos históricos. Pendiente actualización de estados financieros.'}],
+    relacionados:[{nombre:'Roberto Gómez Leal',tipo:'Física',rfc:'GOLR780512HDF',curp:'GOLR780512HDFMBN01',nacimiento:'12/05/1978',nac:'🇲🇽',actividad:'Empresario',relacion:'Director General',contrato:'CTR-001-23',perfil:'Apoderado'},{nombre:'María Fernanda Torres Ríos',tipo:'Física',rfc:'TOFM900301MDF',curp:'TOFM900301MDFRGR02',nacimiento:'01/03/1990',nac:'🇲🇽',actividad:'Administración',relacion:'Cónyuge del Representante',contrato:'CTR-001-23',perfil:'Beneficiaria'},{nombre:'Inversiones GR SA de CV',tipo:'Moral',rfc:'IGR011205AAA',curp:'—',nacimiento:'05/12/2001',nac:'🇵🇦',actividad:'Holding Financiero',relacion:'Accionista Mayoritario',contrato:'CTR-002-24',perfil:'Accionista'}],
+    cuentas:[{nombre:'Cuenta Empresarial Plus',numero:'4152 3340 9901 0021',sucursal:'Insurgentes Sur',relacion:'Titular',estatus:'Activa',apertura:'14/02/2022',baja:'—'},{nombre:'Cuenta Nómina Empresarial',numero:'4152 3340 9901 0890',sucursal:'Polanco',relacion:'Titular',estatus:'Activa',apertura:'01/06/2023',baja:'—'}],
+    docs:[{label:'Acta Constitutiva',val:'✓ Vigente · 2019',color:'verde'},{label:'Comprobante Domicilio',val:'✓ Vigente · Feb 2026',color:'verde'},{label:'Constancia SAT',val:'✓ Vigente · Mar 2026',color:'verde'},{label:'Estados Financieros',val:'✗ Pendiente 2025',color:'rojo'},{label:'ID Representante Legal',val:'⚠ Por vencer Jun 2026',color:'amarillo'},{label:'Información KYC vigente',val:'⚠ Actualización parcial',color:'amarillo'}],
+    perfil_tx:'Servicios de construcción e infraestructura. Ingresos declarados: $1.2M–$3M MXN/mes. Operaciones esperadas: pagos a proveedores, nómina, compra de materiales, depósitos de clientes institucionales.'
+  },
+  {id:'KAP-002301',nombre:'Carlos Eduardo Mendoza Ruiz',rfc:'MERC870615HDF',tipo:'Física',riesgo:'medio',avatar:'👤',actividad:'Comercio al por mayor',nacimiento:'15/06/1987',nacionalidad:'🇲🇽 Mexicana',domicilio:'Calle Morelos 45, Ecatepec, Estado de México',sucursal:'Ecatepec · SUC-041',curp:'MERC870615HDFNRL04',
+    listas:[{lista:'ONU Sanciones',nombre_lista:'Carlos Mendoza',tipo:'Persona',pct:45}],
+    comentarios:[{autor:'Pedro Sánchez',fecha:'22/02/2026 · 14:20',texto:'Cliente declara actividad de comercio de abarrotes. Ingresos variables mensuales entre $80K y $250K.'}],
+    relacionados:[{nombre:'Sofía Mendoza Pérez',tipo:'Física',rfc:'MEPS920310MDF',curp:'MEPS920310MDFNRS07',nacimiento:'10/03/1992',nac:'🇲🇽',actividad:'Maestra',relacion:'Cónyuge',contrato:'CTR-003-21',perfil:'Beneficiaria'}],
+    cuentas:[{nombre:'Cuenta Personal Plus',numero:'4152 9910 2200 3341',sucursal:'Ecatepec',relacion:'Titular',estatus:'Activa',apertura:'10/03/2021',baja:'—'}],
+    docs:[{label:'INE / IFE',val:'✓ Vigente · 2024',color:'verde'},{label:'Comprobante Domicilio',val:'✓ Vigente · Ene 2026',color:'verde'},{label:'Constancia SAT',val:'⚠ Vencida · Oct 2025',color:'amarillo'},{label:'Declaración fiscal',val:'✗ Pendiente 2024',color:'rojo'},{label:'Información KYC vigente',val:'⚠ Constancia SAT vencida',color:'amarillo'}],
+    perfil_tx:'Comercio al por mayor de abarrotes y productos básicos. Ingresos declarados: $80K–$250K MXN/mes.'
+  },
+  {id:'KAP-007654',nombre:'Grupo Industrial del Noreste SA de CV',rfc:'GIN010310AAA',tipo:'Moral',riesgo:'bajo',avatar:'🏭',actividad:'Manufactura y exportación',nacimiento:'10/03/2001',nacionalidad:'🇲🇽 Mexicana',domicilio:'Blvd. Fundidora 501, Monterrey, NL',sucursal:'Monterrey Centro · SUC-012',curp:'—',
+    listas:[],comentarios:[{autor:'Luis Moreno',fecha:'15/03/2026 · 09:30',texto:'Cliente con más de 5 años en cartera. Sin observaciones en revisión periódica. Documentación completa.'}],
+    relacionados:[{nombre:'Ing. Alejandro Ríos Gutiérrez',tipo:'Física',rfc:'RIGA750901MNL',curp:'RIGA750901MNLSLT02',nacimiento:'01/09/1975',nac:'🇲🇽',actividad:'Ingeniero Industrial',relacion:'Director General',contrato:'CTR-010-20',perfil:'Apoderado'}],
+    cuentas:[{nombre:'Cuenta Corporativa Premium',numero:'4152 1100 5544 8821',sucursal:'Monterrey Centro',relacion:'Titular',estatus:'Activa',apertura:'22/05/2020',baja:'—'}],
+    docs:[{label:'Acta Constitutiva',val:'✓ Vigente · 2001',color:'verde'},{label:'Estados Financieros',val:'✓ 2024 presentados',color:'verde'},{label:'Información KYC vigente',val:'✓ Completa y vigente',color:'verde'}],
+    perfil_tx:'Manufactura de componentes metálicos y exportación a EE.UU. y España. Ingresos declarados: $4M–$8M MXN/mes.'
+  },
+  {id:'KAP-001190',nombre:'Fernanda Álvarez Torres',rfc:'AATF920820MDF',tipo:'Física',riesgo:'bajo',avatar:'👤',actividad:'Consultoría estratégica',nacimiento:'20/08/1992',nacionalidad:'🇲🇽 Mexicana',domicilio:'Av. Presidente Masaryk 345, Polanco, CDMX',sucursal:'Polanco · SUC-008',curp:'AATF920820MDFRVR06',
+    listas:[],comentarios:[{autor:'Ana García',fecha:'02/02/2026 · 13:00',texto:'Revisión anual KYC. Sin observaciones. Documentación vigente.'}],
+    relacionados:[{nombre:'Consultoría FAT SC',tipo:'Moral',rfc:'FAT180902AAC',curp:'—',nacimiento:'02/09/2018',nac:'🇲🇽',actividad:'Consultoría',relacion:'Socia / Representante',contrato:'CTR-021-22',perfil:'Apoderada'}],
+    cuentas:[{nombre:'Cuenta Personal Kapital',numero:'4152 8800 1122 5567',sucursal:'Polanco',relacion:'Titular',estatus:'Activa',apertura:'14/06/2022',baja:'—'}],
+    docs:[{label:'INE / IFE',val:'✓ Vigente · 2026',color:'verde'},{label:'Información KYC vigente',val:'✓ Completa',color:'verde'}],
+    perfil_tx:'Servicios de consultoría estratégica. Ingresos declarados: $60K–$120K MXN/mes.'
+  },
+  {id:'KAP-003344',nombre:'Transportes del Norte SA de CV',rfc:'TNO981215AAB',tipo:'Moral',riesgo:'alto',avatar:'🚛',actividad:'Transporte de carga terrestre',nacimiento:'15/12/1998',nacionalidad:'🇲🇽 Mexicana',domicilio:'Carr. Panamericana Km 34, Cd. Juárez, Chih.',sucursal:'Ciudad Juárez · SUC-061',curp:'—',
+    listas:[{lista:'OFAC SDN',nombre_lista:'Transportes del Norte S.A.',tipo:'Empresa',pct:91}],
+    comentarios:[{autor:'Roberto Vega',fecha:'28/03/2026 · 17:00',texto:'Se detectó patrón inusual de depósitos. Múltiples abonos en efectivo desde ciudades fronterizas. Escalado a supervisión de Cumplimiento.'}],
+    relacionados:[{nombre:'Jorge Armando Salinas Vega',tipo:'Física',rfc:'SAVJ701122HCH',curp:'SAVJ701122HCHSGR03',nacimiento:'22/11/1970',nac:'🇲🇽',actividad:'Transportista',relacion:'Director General',contrato:'CTR-040-18',perfil:'Apoderado'},{nombre:'Logística BN SA de CV',tipo:'Moral',rfc:'LBN150601AAD',curp:'—',nacimiento:'01/06/2015',nac:'🇺🇸',actividad:'Logística internacional',relacion:'Empresa asociada',contrato:'CTR-041-20',perfil:'Accionista'}],
+    cuentas:[{nombre:'Cuenta Empresarial Plus',numero:'4152 6610 8800 1122',sucursal:'Ciudad Juárez',relacion:'Titular',estatus:'Activa',apertura:'20/01/2019',baja:'—'}],
+    docs:[{label:'Acta Constitutiva',val:'✓ Vigente · 1998',color:'verde'},{label:'Comprobante Domicilio',val:'⚠ Vencido · Nov 2025',color:'amarillo'},{label:'Constancia SAT',val:'✗ No presentada',color:'rojo'},{label:'Estados Financieros',val:'✗ Pendiente 2023 y 2024',color:'rojo'},{label:'Información KYC vigente',val:'✗ Incompleta · Requiere acción',color:'rojo'}],
+    perfil_tx:'Transporte de carga terrestre en la franja fronteriza norte. Ingresos declarados: $800K–$1.5M MXN/mes.'
+  },
+];
+
+const ALERTAS = [
+  {folio:'ALT-2026-0092',nombre:'Desvío de Perfil Transaccional',cliente:'Transportes del Norte SA de CV',clienteId:'KAP-003344',fecha:'01/04/2026',estatus:'pendiente',prioridad:'critica',monto:'$980,000 MXN',analista:'jfajardo',desc:'El cliente acumuló depósitos por $980,000 MXN en los últimos 3 días hábiles, superando su perfil mensual declarado antes de la primera semana. Abonos desde 6 ciudades distintas en la frontera norte.',resolucion:'Sin atender. Prioridad crítica. Asignada a Jose Fajardo.'},
+  {folio:'ALT-2026-0091',nombre:'Coincidencia en Lista OFAC SDN',cliente:'Transportes del Norte SA de CV',clienteId:'KAP-003344',fecha:'31/03/2026',estatus:'pendiente',prioridad:'urgente',monto:'N/A',analista:'jfajardo',desc:'RFC y razón social del cliente presentan coincidencia del 91% con registro en la lista SDN de la OFAC. Requiere validación manual urgente y posible bloqueo preventivo.',resolucion:'Asignada a Jose Fajardo. Esperando instrucciones de Dirección de Cumplimiento.'},
+  {folio:'ALT-2026-0090',nombre:'Operaciones en Efectivo — Fraccionamiento',cliente:'Carlos Eduardo Mendoza Ruiz',clienteId:'KAP-002301',fecha:'30/03/2026',estatus:'revision',prioridad:'media',monto:'$320,000 MXN',analista:'rmorales',desc:'El cliente realizó 4 depósitos en efectivo en 48 horas sumando $320,000 MXN desde distintas sucursales. Patrón consistente con fraccionamiento.',resolucion:'En revisión por Roberto Morales. Solicitud de origen de recursos enviada el 31/03.'},
+  {folio:'ALT-2026-0089',nombre:'Desvío de Perfil Transaccional',cliente:'Constructora del Norte SA de CV',clienteId:'KAP-004821',fecha:'28/03/2026',estatus:'revision',prioridad:'alta',monto:'$1,240,000 MXN',analista:'jfajardo',desc:'El cliente acumuló depósitos por $1,240,000 MXN en marzo, superando en 148% su perfil declarado de $500,000/mes. Operaciones de 4 empresas no relacionadas en el expediente.',resolucion:'En análisis por Jose Fajardo. Concluido y enviado a revisión de Subdirección.'},
+  {folio:'ALT-2026-0087',nombre:'Transferencia a País de Alto Riesgo',cliente:'Grupo Industrial del Noreste SA de CV',clienteId:'KAP-007654',fecha:'25/03/2026',estatus:'comite',prioridad:'alta',monto:'$450,000 MXN',analista:'lgomez',desc:'Transferencia a cuenta bancaria en Panamá por $450,000 MXN. Primera operación internacional del cliente.',resolucion:'En Comité de Comunicación y Control. Pendiente de resolución.'},
+  {folio:'ALT-2026-0085',nombre:'Fraccionamiento de Operaciones',cliente:'Fernanda Álvarez Torres',clienteId:'KAP-001190',fecha:'22/03/2026',estatus:'cerrada',prioridad:'baja',monto:'$95,000 MXN',analista:'lgomez',desc:'5 retiros en cajero en diferentes sucursales en 24 horas sumando $95,000 MXN.',resolucion:'Justificado. La cliente presentó recibos de viaje de negocios. Cerrado sin reporte el 24/03/2026.'},
+  {folio:'ALT-2026-0081',nombre:'Coincidencia en Lista ONU',cliente:'Constructora del Norte SA de CV',clienteId:'KAP-004821',fecha:'18/03/2026',estatus:'comite',prioridad:'alta',monto:'N/A',analista:'rmorales',desc:'Razón social presenta 62% de coincidencia con registro en listas ONU. Análisis de homonimia en curso.',resolucion:'En Comité. Se solicitó documentación corporativa adicional.'},
+  {folio:'ALT-2026-0078',nombre:'Cliente Inactivo con Movimiento Súbito',cliente:'Carlos Eduardo Mendoza Ruiz',clienteId:'KAP-002301',fecha:'15/03/2026',estatus:'cerrada',prioridad:'media',monto:'$180,000 MXN',analista:'lgomez',desc:'Cuenta sin movimientos 95 días, depósito de $180,000 MXN seguido de transferencia inmediata del 100%.',resolucion:'Justificado. Pago de adeudo y pago a proveedor. Documentación presentada. Cerrado 18/03/2026.'},
+];
+
+const EQUIPO = [
+  {id:'jfajardo',nombre:'Jose Alfonso Fajardo Leyva',email:'jfajardo@kapital.com',rol:'Analista',pendientes:5,revision:3,cerradas:18,total:26,maxCarga:10,tipoAlertas:['Desvío de perfil','OFAC/Listas','Fraccionamiento'],nivelRiesgo:['alto','medio']},
+  {id:'rmorales',nombre:'Roberto Morales Vega',email:'rmorales@kapital.com',rol:'Analista',pendientes:3,revision:4,cerradas:14,total:21,maxCarga:10,tipoAlertas:['Operaciones efectivo','Países riesgo','Inactivos'],nivelRiesgo:['medio','bajo']},
+  {id:'lgomez',nombre:'Laura Gómez Hernández',email:'lgomez@kapital.com',rol:'Analista',pendientes:4,revision:1,cerradas:15,total:20,maxCarga:10,tipoAlertas:['Todos'],nivelRiesgo:['alto','medio','bajo']},
+];
+
+const OPS_CASO = [
+  {fecha:'01/04/2026',tipo:'Depósito Efectivo',monto:'$320,000 MXN',contraparte:'Sin identificar — Efectivo ventanilla',canal:'Ventanilla',ref:'DEP-20260401-001',bandera:'⚠️ Supera umbral diario'},
+  {fecha:'31/03/2026',tipo:'Depósito Efectivo',monto:'$280,000 MXN',contraparte:'Sin identificar — Efectivo ventanilla',canal:'Ventanilla',ref:'DEP-20260331-004',bandera:'⚠️ Fraccionamiento detectado'},
+  {fecha:'29/03/2026',tipo:'Depósito Efectivo',monto:'$220,000 MXN',contraparte:'Sin identificar — Efectivo ventanilla',canal:'Ventanilla',ref:'DEP-20260329-007',bandera:'⚠️ Fraccionamiento detectado'},
+  {fecha:'28/03/2026',tipo:'Transferencia Entrante',monto:'$420,000 MXN',contraparte:'Inversiones GR SA de CV (Panamá)',canal:'SPEI',ref:'TRF-20260328-112',bandera:'🔴 País alto riesgo'},
+  {fecha:'25/03/2026',tipo:'Transferencia Saliente',monto:'$890,000 MXN',contraparte:'Constructora FJRS SA de CV',canal:'SPEI',ref:'TRF-20260325-089',bandera:'🔎 Contraparte no identificada'},
+];
+
+// ════════════════════════════════════════
+//  LOGIN Y NAVEGACIÓN
+// ════════════════════════════════════════
+function seleccionarPerfil(tipo) {
+  const p = PERFILES[tipo];
+  document.getElementById('login-user').value = p.email;
+  perfilActual = tipo;
+  // Visual feedback
+  document.querySelectorAll('.quick-user').forEach(u => u.style.background = '');
+  event.currentTarget.style.background = 'var(--bg4)';
+}
+
+function loginConPerfil() {
+  if (!perfilActual) perfilActual = 'director';
+  cargarDashboard();
+  ir('dashboard');
+}
+
+function irDash() { ir('dashboard'); }
+
+function ir(p) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById('screen-' + p);
+  if (t) { t.classList.add('active'); window.scrollTo(0, 0); }
+
+  // Actualizar topbars
+  const u = perfilActual ? PERFILES[perfilActual] : null;
+  const userLabel = u ? `👤 ${u.nombre}` : '—';
+  document.querySelectorAll('[id^="top-user-"]').forEach(el => el.textContent = userLabel);
+
+  if (p === 'alertas-general') {
+    renderAlertasPorPerfil();
+    // mostrar filtro analista para director/subdirector/gerente
+    const fa = document.getElementById('filtro-analista-select');
+    if (fa) fa.style.display = (perfilActual !== 'analista') ? 'block' : 'none';
+  }
+  if (p === 'productividad') renderProductividad();
+  if (p === 'gestion-equipo') renderGestionEquipo();
+}
+
+// ════════════════════════════════════════
+//  DASHBOARD POR PERFIL
+// ════════════════════════════════════════
+function cargarDashboard() {
+  if (!perfilActual) return;
+  const p = PERFILES[perfilActual];
+  document.getElementById('dash-user-label').textContent = `👤 ${p.nombre}`;
+  document.getElementById('dash-role-badge').textContent = p.badgeTexto;
+  document.getElementById('dash-role-badge').className = 'trole-badge badge ' + p.badge;
+  document.getElementById('dash-bienvenida').textContent = 'Bienvenido' + (p.nombre.includes('Jacqueline') || p.nombre.includes('Nicole') || p.nombre.includes('Laura') ? 'a' : '') + ', ' + p.nombre.split(' ')[0];
+
+  // Stats
+  const statsRow = document.getElementById('dash-stats');
+  statsRow.innerHTML = `
+    <div class="stat-chip"><div class="stat-num rojo">12</div><div class="stat-label">Alertas pendientes</div></div>
+    <div class="stat-chip"><div class="stat-num amarillo">8</div><div class="stat-label">En revisión</div></div>
+    <div class="stat-chip"><div class="stat-num verde">47</div><div class="stat-label">Cerradas (mes)</div></div>
+    <div class="stat-chip"><div class="stat-num morado">2</div><div class="stat-label">En Comité</div></div>
+    ${perfilActual !== 'analista' ? '<div class="stat-chip"><div class="stat-num">1,284</div><div class="stat-label">Clientes activos</div></div>' : ''}
+    ${perfilActual === 'analista' ? '<div class="stat-chip"><div class="stat-num azul">5</div><div class="stat-label">Mis alertas</div></div>' : ''}
+  `;
+
+  // Tarjetas de módulos
+  const modDefs = {
+    'busqueda-cliente':   { num:'01', icon:'🔍', title:'Consulta de Clientes', desc:'Accede al expediente completo del cliente: datos, relacionados, cuentas, documentación y alertas.' },
+    'alertas-general':    { num:'02', icon:'⚡', title: perfilActual === 'analista' ? 'Mis Alertas / Gestión' : 'Monitor de Alertas', desc: perfilActual === 'analista' ? 'Tus alertas asignadas y el espacio completo para análisis, redacción de casos y herramientas PLD.' : 'Monitorea todas las alertas del sistema en tiempo real. Filtra, asigna y gestiona.' },
+    'configuracion':      { num:'03', icon:'⚙️', title:'Configuración', desc:'Umbrales de escenarios, catálogo de países con nivel de riesgo y escenarios activos del motor.' },
+    'productividad':      { num:'04', icon:'📊', title:'Dashboard de Productividad', desc:'Rendimiento del equipo PLD: alertas por analista, tiempos de resolución y tipos de alerta.' },
+    'revision-casos':     { num:'05', icon:'✅', title:'Revisión de Conclusiones', desc:'Supervisa las conclusiones de los analistas, valídalas o regresalas. Gestiona el Comité de Control.' },
+    'gestion-equipo':     { num:'06', icon:'👥', title:'Gestión de Mi Equipo', desc:'Configura carga de trabajo, tipo de alertas por analista y supervisa operatividad de tu equipo.' },
+  };
+
+  const tarjetas = document.getElementById('dash-cards-container');
+  let html = '';
+  p.modulos.forEach(mod => {
+    if (modDefs[mod]) {
+      const d = modDefs[mod];
+      html += `<div class="dash-card" onclick="irMod('${mod}')">
+        <div class="card-num">${d.num}</div><div class="card-icon">${d.icon}</div>
+        <div class="card-title">${d.title}</div>
+        <div class="card-desc">${d.desc}</div>
+        <div class="card-cta">Acceder <span>→</span></div>
+      </div>`;
+    }
+  });
+
+  // Módulo configuración solo para director
+  if (perfilActual === 'director') {
+    const d = modDefs['configuracion'];
+    html += `<div class="dash-card" onclick="irMod('configuracion')">
+      <div class="card-num">${d.num}</div><div class="card-icon">${d.icon}</div>
+      <div class="card-title">${d.title}</div>
+      <div class="card-desc">${d.desc}</div>
+      <div class="card-cta">Configurar <span>→</span></div>
+    </div>`;
+  } else if (!p.modulos.includes('configuracion')) {
+    const d = modDefs['configuracion'];
+    html += `<div class="dash-card locked">
+      <div class="card-locked-label">🔒 Sin acceso</div>
+      <div class="card-num">${d.num}</div><div class="card-icon">${d.icon}</div>
+      <div class="card-title">${d.title}</div>
+      <div class="card-desc">${d.desc}</div>
+    </div>`;
+  }
+
+  tarjetas.innerHTML = html;
+}
+
+function irMod(mod) { ir(mod); }
+
+// ════════════════════════════════════════
+//  BÚSQUEDA DE CLIENTES
+// ════════════════════════════════════════
+function buscarCliente() {
+  const id = document.getElementById('busq-id').value.trim().toLowerCase();
+  const nombre = document.getElementById('busq-nombre').value.trim().toLowerCase();
+  const rfc = document.getElementById('busq-rfc').value.trim().toLowerCase();
+  const res = CLIENTES.filter(c => {
+    if (id && !c.id.toLowerCase().includes(id)) return false;
+    if (nombre && !c.nombre.toLowerCase().includes(nombre)) return false;
+    if (rfc && !c.rfc.toLowerCase().includes(rfc)) return false;
+    return true;
+  });
+  const cont = document.getElementById('resultados-container');
+  cont.style.display = 'block';
+  document.getElementById('resultados-count').textContent = res.length + ' coincidencia' + (res.length !== 1 ? 's' : '') + ' encontrada' + (res.length !== 1 ? 's' : '');
+  document.getElementById('lista-resultados').innerHTML = res.length
+    ? res.map(c => `<div class="cliente-row" onclick="verCliente('${c.id}')">
+        <div class="cr-left"><div style="font-size:20px">${c.avatar}</div><div class="cr-info"><div class="cr-nombre">${c.nombre}</div><div class="cr-meta">${c.id} · RFC: ${c.rfc} · ${c.tipo}</div></div></div>
+        <div class="cr-right"><span class="badge badge-${c.riesgo}">Riesgo ${c.riesgo.charAt(0).toUpperCase()+c.riesgo.slice(1)}</span><span style="color:var(--texto-faint);font-size:16px">›</span></div>
+      </div>`).join('')
+    : '<div style="color:var(--texto-dim);padding:20px;text-align:center;background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px">No se encontraron clientes.</div>';
+}
+
+function verCliente(id) {
+  const c = CLIENTES.find(x => x.id === id); if (!c) return;
+  window._clienteActual = id;
+  document.getElementById('det-avatar').textContent = c.avatar;
+  document.getElementById('det-nombre').textContent = c.nombre;
+  document.getElementById('det-meta').textContent = 'RFC: ' + c.rfc + ' · ID: ' + c.id + (c.curp !== '—' ? ' · CURP: ' + c.curp : '');
+  document.getElementById('det-tipo').textContent = c.tipo + ' · ' + c.actividad;
+  const b = document.getElementById('det-badge');
+  b.textContent = 'Riesgo ' + c.riesgo.charAt(0).toUpperCase() + c.riesgo.slice(1);
+  b.className = 'badge badge-' + c.riesgo;
+  document.getElementById('datos-grid').innerHTML = [
+    {label:'Razón social / Nombre',val:c.nombre},{label:'Tipo de persona',val:c.tipo},
+    {label:'RFC',val:'<span class="mono">'+c.rfc+'</span>'},{label:'CURP',val:c.curp!=='—'?'<span class="mono">'+c.curp+'</span>':'No aplica'},
+    {label:'Fecha const./nacimiento',val:c.nacimiento},{label:'Nacionalidad',val:c.nacionalidad},
+    {label:'Domicilio',val:c.domicilio},{label:'Sucursal de apertura',val:c.sucursal},{label:'Actividad económica',val:c.actividad},
+  ].map(x => '<div class="info-card"><div class="info-label">'+x.label+'</div><div class="info-val">'+x.val+'</div></div>').join('');
+  document.getElementById('listas-tbody').innerHTML = c.listas.length
+    ? c.listas.map(l => '<tr><td><span class="badge badge-'+(l.pct>=80?'alto':l.pct>=50?'medio':'bajo')+'">'+l.lista+'</span></td><td>'+l.nombre_lista+'</td><td>'+l.tipo+'</td><td><div class="pct-bar"><div class="bar-bg"><div class="bar-fill bar-'+(l.pct>=80?'alto':l.pct>=50?'medio':'bajo')+'" style="width:'+l.pct+'%"></div></div><span class="mono">'+l.pct+'%</span></div></td></tr>').join('')
+    : '<tr><td colspan="4" style="color:var(--texto-dim);text-align:center;padding:18px">Sin coincidencias en listas negras</td></tr>';
+  document.getElementById('comentarios-container').innerHTML = c.comentarios.map(cm => '<div class="comment-block"><div class="comment-author">'+cm.autor+'</div><div class="comment-date">'+cm.fecha+'</div><div class="comment-text">'+cm.texto+'</div></div>').join('');
+  document.getElementById('relacionados-tbody').innerHTML = c.relacionados.map(r => '<tr><td><strong>'+r.nombre+'</strong></td><td>'+r.tipo+'</td><td><span class="mono">'+r.rfc+'</span></td><td>'+r.nacimiento+'</td><td>'+r.nac+'</td><td>'+r.actividad+'</td><td>'+r.relacion+'</td><td><span class="mono">'+r.contrato+'</span></td><td><span class="badge badge-neutral">'+r.perfil+'</span></td></tr>').join('');
+  document.getElementById('cuentas-tbody').innerHTML = c.cuentas.map(cu => '<tr><td><strong>'+cu.nombre+'</strong></td><td><span class="mono">'+cu.numero+'</span></td><td>'+cu.sucursal+'</td><td><span class="badge badge-neutral">'+cu.relacion+'</span></td><td><span class="badge badge-'+(cu.estatus==='Activa'?'bajo':'alto')+'">'+cu.estatus+'</span></td><td>'+cu.apertura+'</td><td style="color:var(--texto-dim)">'+cu.baja+'</td></tr>').join('');
+  document.getElementById('doc-grid').innerHTML = c.docs.map(d => '<div class="info-card"><div class="info-label">'+d.label+'</div><div class="info-val" style="color:'+(d.color==='verde'?'var(--verde)':d.color==='rojo'?'var(--rojo)':'var(--amarillo)')+'">'+d.val+'</div></div>').join('');
+  document.getElementById('perfil-tx').textContent = c.perfil_tx;
+  const misAl = ALERTAS.filter(a => a.clienteId === id);
+  document.getElementById('alertas-cliente-lista').innerHTML = misAl.length
+    ? misAl.map(a => alertaHTML(a, true)).join('')
+    : '<div style="color:var(--texto-dim);padding:18px;background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px;text-align:center">Sin alertas registradas para este cliente.</div>';
+  ir('detalle-cliente');
+  document.querySelectorAll('#screen-detalle-cliente .tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+  document.querySelectorAll('#screen-detalle-cliente .tab-content').forEach((t, i) => t.classList.toggle('active', i === 0));
+}
+
+// ════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════
+function tab(e, nombre) {
+  const bar = e.currentTarget.closest('.tab-bar');
+  bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  const screen = e.currentTarget.closest('.screen');
+  screen.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-' + nombre);
+  if (el) el.classList.add('active');
+}
+
+function tabCaso(e, nombre) {
+  const bar = e.currentTarget.closest('.tab-bar');
+  bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.querySelectorAll('[id^="tab-caso-"]').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-caso-' + nombre);
+  if (el) el.classList.add('active');
+}
+
+function tabRevision(e, nombre) {
+  const bar = e.currentTarget.closest('.tab-bar');
+  bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.querySelectorAll('#screen-revision-casos .tab-content').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-' + nombre);
+  if (el) el.classList.add('active');
+}
+
+function tabGestion(e, nombre) {
+  const bar = e.currentTarget.closest('.tab-bar');
+  bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.querySelectorAll('#screen-gestion-equipo .tab-content').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-' + nombre);
+  if (el) el.classList.add('active');
+}
+
+// ════════════════════════════════════════
+//  ALERTAS
+// ════════════════════════════════════════
+function alertaHTML(a, esCliente) {
+  const etq = {pendiente:'Pendiente', revision:'En revisión', cerrada:'Cerrada', comite:'En Comité'};
+  const prioColor = {critica:'var(--rojo)', urgente:'var(--rojo)', alta:'var(--amarillo)', media:'', baja:'var(--verde)'};
+  return `<div class="alerta-row ${a.estatus}" onclick="abrirModal('${a.folio}')">
+    <div class="al-info">
+      <div class="al-nombre">${a.nombre} ${a.prioridad === 'critica' ? '<span style="color:var(--rojo);font-size:10px;font-weight:700;">● CRÍTICA</span>' : ''}</div>
+      <div class="al-meta">
+        <span>📋 ${a.folio}</span>
+        ${!esCliente ? '<span>👤 ' + a.cliente + '</span>' : ''}
+        <span>📅 ${a.fecha}</span>
+        <span>💰 ${a.monto}</span>
+        ${a.analista && !esCliente ? '<span>🔎 ' + (EQUIPO.find(e => e.id === a.analista) || {nombre: a.analista}).nombre.split(' ')[0] + '</span>' : ''}
+      </div>
+    </div>
+    <div class="al-right">
+      <span class="badge badge-${a.estatus}">${etq[a.estatus]}</span>
+    </div>
+  </div>`;
+}
+
+function renderAlertasPorPerfil() {
+  let alertas = ALERTAS;
+  if (perfilActual === 'analista') {
+    alertas = ALERTAS.filter(a => a.analista === 'jfajardo' || a.estatus === 'pendiente');
+    document.getElementById('alertas-sub-texto').textContent = 'Tus alertas asignadas y alertas sin asignar disponibles para tomar.';
+  } else if (perfilActual === 'gerente') {
+    const miEquipoIds = EQUIPO.map(e => e.id);
+    alertas = ALERTAS.filter(a => miEquipoIds.includes(a.analista));
+    document.getElementById('alertas-sub-texto').textContent = 'Alertas del equipo bajo tu coordinación.';
+  } else {
+    document.getElementById('alertas-sub-texto').textContent = 'Todas las alertas del sistema, de la más reciente a la más antigua.';
+  }
+  document.getElementById('lista-alertas-general').innerHTML = alertas.length
+    ? alertas.map(a => alertaHTML(a, false)).join('')
+    : '<div style="color:var(--texto-dim);padding:20px;text-align:center;background:var(--bg2);border:1px solid var(--border-strong);border-radius:11px">No hay alertas con esos filtros.</div>';
+}
+
+function filtrarAlertas(q) {
+  q = q.toLowerCase();
+  const filtered = ALERTAS.filter(a => a.nombre.toLowerCase().includes(q) || a.cliente.toLowerCase().includes(q) || a.folio.toLowerCase().includes(q));
+  document.getElementById('lista-alertas-general').innerHTML = filtered.map(a => alertaHTML(a, false)).join('');
+}
+
+function filtrarEstatus(val) {
+  const filtered = val === 'todos' ? ALERTAS : ALERTAS.filter(a => a.estatus === val);
+  document.getElementById('lista-alertas-general').innerHTML = filtered.map(a => alertaHTML(a, false)).join('');
+}
+
+function filtrarPorAnalista(val) {
+  const filtered = val === 'todos' ? ALERTAS : ALERTAS.filter(a => a.analista === val);
+  document.getElementById('lista-alertas-general').innerHTML = filtered.map(a => alertaHTML(a, false)).join('');
+}
+
+// ════════════════════════════════════════
+//  MODAL ALERTA
+// ════════════════════════════════════════
+function abrirModal(folio) {
+  const a = ALERTAS.find(x => x.folio === folio); if (!a) return;
+  window._alertaActual = a;
+  document.getElementById('modal-titulo').textContent = a.nombre;
+  document.getElementById('modal-folio').textContent = 'Folio ' + a.folio + ' · ' + a.fecha + ' · ' + {pendiente:'🔴 Pendiente', revision:'🟡 En revisión', cerrada:'🟢 Cerrada', comite:'🟣 En Comité'}[a.estatus];
+  document.getElementById('modal-cliente').textContent = a.cliente + ' · ' + a.clienteId;
+  document.getElementById('modal-monto').textContent = a.monto;
+  document.getElementById('modal-descripcion').textContent = a.desc;
+  document.getElementById('modal-resolucion').textContent = a.resolucion;
+  cerrarModal('modal-alerta'); // reset
+  document.getElementById('modal-alerta').classList.add('open');
+}
+
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function irClienteDesdeModal() {
+  const a = window._alertaActual; if (!a) return;
+  cerrarModal('modal-alerta');
+  verCliente(a.clienteId);
+}
+
+function irAnalisisDesdeMod() {
+  const a = window._alertaActual; if (!a) return;
+  cerrarModal('modal-alerta');
+  abrirAnalisisCaso(a.folio);
+}
+
+// ════════════════════════════════════════
+//  ANÁLISIS DE CASO
+// ════════════════════════════════════════
+function abrirAnalisisCaso(folio) {
+  const a = ALERTAS.find(x => x.folio === folio); if (!a) return;
+  window._casoActual = a;
+  const c = CLIENTES.find(x => x.id === a.clienteId);
+
+  document.getElementById('caso-titulo').textContent = a.nombre;
+  document.getElementById('caso-folio-meta').textContent = `Folio ${a.folio} · ${a.fecha} · Cliente: ${a.cliente}`;
+
+  const etqColor = {pendiente:'badge-pendiente',revision:'badge-revision',cerrada:'badge-cerrada',comite:'badge-comite'};
+  const etqTxt = {pendiente:'🔴 Pendiente',revision:'🟡 En revisión',cerrada:'🟢 Cerrada',comite:'🟣 En Comité'};
+  document.getElementById('caso-badges').innerHTML = `<span class="badge ${etqColor[a.estatus]}">${etqTxt[a.estatus]}</span><span class="badge badge-${a.riesgo || 'alto'}">Riesgo ${a.prioridad || 'alto'}</span><span class="badge badge-neutral">💰 ${a.monto}</span>`;
+
+  // Operaciones
+  document.getElementById('caso-ops-lista').innerHTML = OPS_CASO.slice(0, 3).map(op => `
+    <div class="op-row">
+      <div class="op-tipo" style="color:var(--amarillo)">${op.tipo}</div>
+      <div class="op-monto">${op.monto}</div>
+      <div class="op-meta">${op.fecha}<br><span style="color:var(--rojo);font-size:9px;">${op.bandera}</span></div>
+    </div>`).join('');
+
+  document.getElementById('ops-detalle-tbody').innerHTML = OPS_CASO.map(op => `
+    <tr><td>${op.fecha}</td><td>${op.tipo}</td><td style="color:var(--amarillo);font-family:'JetBrains Mono',monospace;font-weight:700;">${op.monto}</td>
+    <td style="font-size:11px;">${op.contraparte}</td><td>${op.canal}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:10px;">${op.ref}</td>
+    <td style="font-size:10px;">${op.bandera}</td></tr>`).join('');
+
+  // Datos cliente
+  if (c) {
+    document.getElementById('caso-cliente-datos').innerHTML = [
+      {label:'Nombre',val:c.nombre},{label:'RFC',val:'<span class="mono">'+c.rfc+'</span>'},
+      {label:'Tipo',val:c.tipo},{label:'Actividad',val:c.actividad},
+      {label:'Nivel de riesgo',val:'<span class="badge badge-'+c.riesgo+'">'+c.riesgo.charAt(0).toUpperCase()+c.riesgo.slice(1)+'</span>'},
+      {label:'Sucursal',val:c.sucursal},
+    ].map(x => '<div class="info-card"><div class="info-label">'+x.label+'</div><div class="info-val">'+x.val+'</div></div>').join('');
+    document.getElementById('caso-perfil-tx').textContent = c.perfil_tx;
+    document.getElementById('caso-docs-grid').innerHTML = c.docs.map(d => '<div class="info-card"><div class="info-label">'+d.label+'</div><div class="info-val" style="color:'+(d.color==='verde'?'var(--verde)':d.color==='rojo'?'var(--rojo)':'var(--amarillo)')+'">'+d.val+'</div></div>').join('');
+    document.getElementById('caso-relacionados-tbody').innerHTML = c.relacionados.map(r => '<tr><td><strong>'+r.nombre+'</strong></td><td>'+r.tipo+'</td><td><span class="mono">'+r.rfc+'</span></td><td>'+r.relacion+'</td><td><span class="badge badge-neutral">'+r.perfil+'</span></td></tr>').join('');
+    document.getElementById('red-node-central').textContent = c.nombre.substring(0, 20);
+  }
+
+  // Sidebar
+  document.getElementById('caso-info-sidebar').innerHTML = [
+    {l:'Folio',v:a.folio},{l:'Escenario',v:a.nombre},{l:'Fecha alerta',v:a.fecha},
+    {l:'Monto',v:a.monto},{l:'Estatus',v:etqTxt[a.estatus]},{l:'Cliente',v:a.cliente},
+  ].map(x => `<div><div class="info-label">${x.l}</div><div style="font-size:12px;font-weight:500;margin-top:3px;">${x.v}</div></div>`).join('');
+
+  // Comentarios
+  renderComentariosCaso();
+
+  // Historial
+  document.getElementById('caso-historial').innerHTML = [
+    {fecha:'01/04/2026 · 09:00',txt:'Alerta generada automáticamente por el motor.'},
+    {fecha:'01/04/2026 · 10:15',txt:'Asignada a Jose Alfonso Fajardo Leyva.'},
+    {fecha:'02/04/2026 · 14:30',txt:'Análisis iniciado — marcada En revisión.'},
+  ].map(h => `<div class="comment-block"><div class="comment-date">${h.fecha}</div><div class="comment-text">${h.txt}</div></div>`).join('');
+
+  // Casos previos
+  const casosPrev = ALERTAS.filter(x => x.clienteId === a.clienteId && x.folio !== a.folio);
+  document.getElementById('casos-previos-lista').innerHTML = casosPrev.length
+    ? casosPrev.map(x => alertaHTML(x, true)).join('')
+    : '<div style="color:var(--texto-dim);font-size:12px;">Sin casos previos para este cliente.</div>';
+
+  // Notas
+  document.getElementById('caso-notas-lista').innerHTML = notasCaso.length
+    ? notasCaso.map(n => `<div class="comment-block"><div class="comment-author">Nota de investigación</div><div class="comment-date">${n.fecha}</div><div class="comment-text">${n.texto}</div></div>`).join('')
+    : '<div style="color:var(--texto-dim);font-size:12px;padding:8px 0;">Sin notas de investigación aún.</div>';
+
+  ir('analisis-caso');
+  // Reset tabs
+  document.querySelectorAll('#screen-analisis-caso .tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+  document.querySelectorAll('[id^="tab-caso-"]').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.getElementById('cerrar-folio-label').textContent = 'Folio ' + a.folio + ' · ' + a.cliente;
+}
+
+function renderComentariosCaso() {
+  document.getElementById('caso-comentarios-lista').innerHTML = comentariosCaso.map(cm =>
+    `<div class="comment-block"><div class="comment-author">${cm.autor}</div><div class="comment-date">${cm.fecha}</div><div class="comment-text">${cm.texto}</div></div>`
+  ).join('');
+}
+
+function agregarComentarioCaso() {
+  const txt = document.getElementById('nuevo-comentario').value.trim(); if (!txt) return;
+  const p = perfilActual ? PERFILES[perfilActual] : null;
+  comentariosCaso.push({autor: p ? p.nombre.split(' ')[0]+' '+p.nombre.split(' ')[1] : 'Usuario', fecha: new Date().toLocaleDateString('es-MX')+' · '+new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}), texto: txt});
+  document.getElementById('nuevo-comentario').value = '';
+  renderComentariosCaso();
+  guardar();
+}
+
+function agregarNota() {
+  const txt = document.getElementById('nueva-nota').value.trim(); if (!txt) return;
+  notasCaso.push({fecha: new Date().toLocaleDateString('es-MX'), texto: txt});
+  document.getElementById('nueva-nota').value = '';
+  document.getElementById('caso-notas-lista').innerHTML = notasCaso.map(n => `<div class="comment-block"><div class="comment-author">Nota de investigación</div><div class="comment-date">${n.fecha}</div><div class="comment-text">${n.texto}</div></div>`).join('');
+  guardar();
+}
+
+function generarBorrador() {
+  const a = window._casoActual; if (!a) return;
+  const template = `ANÁLISIS DE CASO — ${a.folio}
+Fecha de elaboración: ${new Date().toLocaleDateString('es-MX')}
+Analista: ${perfilActual ? PERFILES[perfilActual].nombre : '—'}
+
+I. ANTECEDENTES
+El presente análisis corresponde a la alerta "${a.nombre}" generada el ${a.fecha} para el cliente ${a.cliente} (${a.clienteId}). La alerta fue originada por el motor de detección automático del sistema PLD al detectarse operaciones que superan el perfil transaccional declarado por el cliente.
+
+II. HECHOS RELEVANTES
+Se identificaron operaciones por un monto total de ${a.monto} que presentan patrones atípicos respecto al comportamiento histórico del cliente. Las operaciones involucradas se detallan en el apartado de movimientos de este expediente.
+
+III. ANÁLISIS
+Con base en el análisis de las operaciones, el expediente del cliente, las coincidencias en listas internacionales y la aplicación de indicadores GAFI, se determinó que [COMPLETAR CON HALLAZGOS ESPECÍFICOS].
+
+IV. CONCLUSIÓN Y RECOMENDACIÓN
+[COMPLETAR — Descartar / Monitoreo ampliado / Elevar a Comité / Reportar a UIF]
+
+Firma del analista: _______________________`;
+  document.getElementById('caso-redaccion-texto').value = template;
+  guardar();
+}
+
+function insertarPlantilla(tipo) {
+  const el = document.getElementById('caso-redaccion-texto');
+  const plantillas = {
+    hechos: '\n\nI. HECHOS\n[Describe los hechos relevantes que generaron la alerta...]\n',
+    analisis: '\n\nII. ANÁLISIS\n[Análisis de operaciones, relaciones, indicadores GAFI aplicables...]\n',
+    conclusion: '\n\nIII. CONCLUSIÓN Y RECOMENDACIÓN\n[Conclusión del análisis y acción recomendada: descartar / monitoreo / comité / UIF]\n',
+  };
+  el.value += plantillas[tipo] || '';
+}
+
+function guardarRedaccion() {
+  const t = document.getElementById('toast');
+  t.textContent = '💾 Borrador guardado';
+  t.classList.add('show');
+  setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Cambios guardados correctamente'; }, 2500);
+}
+
+function abrirModalCerrarCaso() { document.getElementById('modal-cerrar-caso').classList.add('open'); }
+function abrirModalPreguntasIA() { document.getElementById('modal-preguntas-ia').classList.add('open'); }
+function abrirModalGAFI() { document.getElementById('modal-gafi').classList.add('open'); }
+
+function guardarConclusion() {
+  const decision = document.querySelector('input[name="conclusion"]:checked');
+  const texto = document.getElementById('conclusion-texto').value.trim();
+  if (!decision) { alert('Por favor selecciona una decisión.'); return; }
+  if (!texto || texto.length < 20) { alert('Por favor escribe una justificación más detallada (mínimo 20 caracteres).'); return; }
+  cerrarModal('modal-cerrar-caso');
+  const msg = {descartar:'✓ Alerta descartada — caso cerrado', monitoreo:'🟡 Caso enviado a monitoreo ampliado', comite:'🟣 Caso elevado a Comité de Comunicación y Control'}[decision.value];
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Cambios guardados correctamente'; }, 3500);
+}
+
+function abrirModalAsignarRed() { guardar(); }
+function exportarRedPNG() { guardar(); }
+function agregarNodoRed() {
+  const nombre = prompt('Nombre del nodo a agregar (persona o empresa):');
+  if (nombre) { guardar(); }
+}
+
+function exportarWord() {
+  const a = window._casoActual || {folio:'—',nombre:'—',cliente:'—'};
+  document.getElementById('word-preview-folio').textContent = a.folio + ' · ' + a.cliente;
+  document.getElementById('word-preview-content').innerHTML = `
+    <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #333;padding-bottom:16px;">
+      <div style="font-size:18px;font-weight:800;letter-spacing:-0.3px;">KAPITAL BANK MÉXICO</div>
+      <div style="font-size:11px;color:#666;margin-top:4px;">Dirección de Cumplimiento · Prevención de Lavado de Dinero</div>
+      <div style="font-size:14px;font-weight:700;margin-top:12px;">REPORTE DE ANÁLISIS DE ALERTA</div>
+      <div style="font-size:11px;color:#888;margin-top:4px;">${a.folio} · ${new Date().toLocaleDateString('es-MX')}</div>
+    </div>
+    <table style="width:100%;font-size:11px;margin-bottom:16px;border-collapse:collapse;">
+      <tr><td style="font-weight:700;width:140px;padding:4px 0;">Cliente:</td><td>${a.cliente}</td></tr>
+      <tr><td style="font-weight:700;padding:4px 0;">Escenario:</td><td>${a.nombre}</td></tr>
+      <tr><td style="font-weight:700;padding:4px 0;">Fecha alerta:</td><td>${a.fecha}</td></tr>
+      <tr><td style="font-weight:700;padding:4px 0;">Monto:</td><td>${a.monto}</td></tr>
+      <tr><td style="font-weight:700;padding:4px 0;">Analista:</td><td>${perfilActual ? PERFILES[perfilActual].nombre : '—'}</td></tr>
+    </table>
+    <div style="font-weight:700;font-size:12px;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px;">ANÁLISIS DEL CASO</div>
+    <div style="font-size:11px;line-height:1.8;color:#333;">${(document.getElementById('caso-redaccion-texto') || {value:''}).value || '[El analista no ha completado la redacción del caso.]'}</div>
+    <div style="font-weight:700;font-size:12px;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px;margin-top:16px;">COMENTARIOS DEL EQUIPO</div>
+    ${comentariosCaso.map(c => `<div style="margin-bottom:8px;font-size:11px;"><strong>${c.autor}</strong> (${c.fecha}): ${c.texto}</div>`).join('')}
+    <div style="margin-top:24px;border-top:1px solid #ddd;padding-top:12px;font-size:10px;color:#888;text-align:center;">Documento generado automáticamente · Kapital Bank México · Sistema PLD v3.0.0</div>
+  `;
+  document.getElementById('modal-word-preview').classList.add('open');
+}
+
+function exportarPDF() { guardar(); }
+function simularSubida() { guardar(); }
+
+// ════════════════════════════════════════
+//  PRODUCTIVIDAD
+// ════════════════════════════════════════
+function renderProductividad() {
+  const p = perfilActual ? PERFILES[perfilActual] : null;
+  if (!p) return;
+  document.getElementById('prod-sub').textContent = p.tipo === 'gerente'
+    ? 'Rendimiento de tu equipo de analistas · Mes en curso'
+    : p.tipo === 'director' ? 'Vista ejecutiva del equipo completo de Monitoreo PLD' : 'Rendimiento del equipo PLD · Mes en curso';
+
+  // KPIs
+  document.getElementById('prod-kpis').innerHTML = `
+    <div class="prod-card"><div class="prod-card-title">Total alertas</div><div class="stat-num" style="font-size:28px;">67</div><div class="stat-label" style="margin-top:4px;">Este mes</div></div>
+    <div class="prod-card"><div class="prod-card-title">Pendientes</div><div class="stat-num rojo" style="font-size:28px;">12</div><div class="stat-label" style="margin-top:4px;color:var(--rojo)">Requieren atención</div></div>
+    <div class="prod-card"><div class="prod-card-title">SLA cumplimiento</div><div class="stat-num verde" style="font-size:28px;">85%</div><div class="stat-label" style="margin-top:4px;">↑ 3% vs mes anterior</div></div>
+    <div class="prod-card"><div class="prod-card-title">Tiempo prom. resolución</div><div class="stat-num amarillo" style="font-size:28px;">2.4d</div><div class="stat-label" style="margin-top:4px;">Días hábiles</div></div>
+  `;
+
+  // Por tipo
+  const tiposData = [
+    {tipo:'Desvío de perfil',num:21,pct:31},
+    {tipo:'Operaciones efectivo',num:18,pct:27},
+    {tipo:'Coincidencia listas',num:12,pct:18},
+    {tipo:'Fraccionamiento',num:9,pct:13},
+    {tipo:'Países riesgo',num:7,pct:10},
+  ];
+  document.getElementById('prod-por-tipo').innerHTML = tiposData.map(t => `
+    <div style="display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:9px;">
+      <span style="min-width:160px;color:var(--texto-dim);">${t.tipo}</span>
+      <div class="bar-bg" style="flex:1;height:6px;"><div class="bar-fill" style="width:${t.pct}%;background:var(--azul);border-radius:3px;height:100%;"></div></div>
+      <span class="mono" style="color:var(--azul);min-width:20px;">${t.num}</span>
+    </div>`).join('');
+
+  // Tabla equipo
+  const equipo = p.tipo === 'gerente' ? EQUIPO : EQUIPO;
+  document.getElementById('prod-tabla-equipo').innerHTML = `
+    <div style="overflow-x:auto;">
+      <table style="width:100%;">
+        <thead><tr>
+          <th>Analista</th><th>Pendientes</th><th>En revisión</th><th>Cerradas</th><th>Total</th><th>% SLA</th><th>Acciones</th>
+        </tr></thead>
+        <tbody>
+          ${equipo.map(e => `<tr>
+            <td><div style="font-size:13px;font-weight:600;">${e.nombre}</div><div style="font-size:10px;color:var(--texto-dim);">${e.email}</div></td>
+            <td><span class="stat-num rojo" style="font-size:14px;">${e.pendientes}</span></td>
+            <td><span class="stat-num amarillo" style="font-size:14px;">${e.revision}</span></td>
+            <td><span class="stat-num verde" style="font-size:14px;">${e.cerradas}</span></td>
+            <td><strong>${e.total}</strong></td>
+            <td>
+              <div class="pct-bar">
+                <div class="bar-bg"><div class="bar-fill ${e.cerradas/e.total > 0.7 ? 'bar-bajo' : e.cerradas/e.total > 0.4 ? 'bar-medio' : 'bar-alto'}" style="width:${Math.round(e.cerradas/e.total*100)}%"></div></div>
+                <span class="mono">${Math.round(e.cerradas/e.total*100)}%</span>
+              </div>
+            </td>
+            <td>
+              <button class="btn-accion" style="font-size:11px;" onclick="verAlertasAnalista('${e.id}')">Ver alertas</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function verAlertasAnalista(id) {
+  const nombre = (EQUIPO.find(e => e.id === id) || {}).nombre || id;
+  guardar(`Mostrando alertas de ${nombre.split(' ')[0]}`);
+}
+
+// ════════════════════════════════════════
+//  GESTIÓN EQUIPO (GERENTE)
+// ════════════════════════════════════════
+function renderGestionEquipo() {
+  // Carga de trabajo
+  document.getElementById('carga-trabajo-lista').innerHTML = EQUIPO.map(e => {
+    const pct = Math.round(e.pendientes / e.maxCarga * 100);
+    const clase = pct >= 80 ? 'alta' : pct >= 60 ? 'media' : '';
+    return `<div class="carga-row">
+      <div class="carga-analista">
+        <div class="carga-analista-name">${e.nombre}</div>
+        <div class="carga-analista-meta">${e.pendientes} pendientes de ${e.maxCarga} máximo</div>
+      </div>
+      <div class="carga-barra-wrap">
+        <div class="carga-barra-bg"><div class="carga-barra-fill ${clase}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="carga-num" style="color:${clase === 'alta' ? 'var(--rojo)' : clase === 'media' ? 'var(--amarillo)' : 'var(--verde)'}">${pct}%</div>
+      <div class="input-group" style="min-width:80px;"><input type="number" value="${e.maxCarga}" min="1" max="30" style="padding:5px 9px;text-align:center;"></div>
+    </div>`;
+  }).join('');
+
+  // Tipos de alerta
+  const escenarios = ['Desvío de perfil','Operaciones efectivo','Coincidencia listas','Fraccionamiento','Países de riesgo','Inactivos'];
+  document.getElementById('tipos-alerta-config').innerHTML = EQUIPO.map(e => `
+    <div style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;">${e.nombre}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+        ${escenarios.map(esc => `<label style="display:flex;align-items:center;gap:6px;font-size:12px;padding:5px 10px;background:var(--bg3);border-radius:7px;cursor:pointer;">
+          <input type="checkbox" ${e.tipoAlertas.includes(esc) || e.tipoAlertas.includes('Todos') ? 'checked' : ''}> ${esc}
+        </label>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--texto-dim);">
+        Nivel de riesgo mínimo:
+        <select class="filter-select" style="padding:5px 9px;font-size:12px;">
+          <option ${e.nivelRiesgo.includes('bajo') ? 'selected' : ''}>Bajo (todos)</option>
+          <option ${e.nivelRiesgo.includes('medio') && !e.nivelRiesgo.includes('bajo') ? 'selected' : ''}>Medio y Alto</option>
+          <option ${e.nivelRiesgo.length === 1 && e.nivelRiesgo.includes('alto') ? 'selected' : ''}>Solo Alto</option>
+        </select>
+      </div>
+    </div>`).join('');
+
+  // Reasignación
+  document.getElementById('reasig-lista-ger').innerHTML = ALERTAS.filter(a => ['pendiente','revision'].includes(a.estatus)).map(a => `
+    <div class="reasig-row">
+      <div style="width:30px;"><input type="checkbox"></div>
+      <div class="reasig-info">
+        <div class="reasig-folio">${a.folio}</div>
+        <div class="reasig-meta">${a.nombre} · ${a.cliente}</div>
+      </div>
+      <div class="reasig-asignado">Asignado: ${(EQUIPO.find(e => e.id === a.analista) || {nombre: 'Sin asignar'}).nombre.split(' ')[0]}</div>
+      <select class="filter-select" style="font-size:11px;padding:5px 9px;">
+        <option value="">Reasignar a...</option>
+        ${EQUIPO.map(e => `<option value="${e.id}">${e.nombre.split(' ')[0]} ${e.nombre.split(' ')[1]}</option>`).join('')}
+      </select>
+    </div>`).join('');
+}
+
+function redistribuirCarga() {
+  guardar('⚖️ Carga redistribuida automáticamente');
+}
+
+// ════════════════════════════════════════
+//  REVISIÓN SUBDIRECTORA
+// ════════════════════════════════════════
+function aceptarConclusionModal(folio) {
+  guardar('✅ Conclusión aceptada — ' + folio);
+}
+
+function regresarAnalisis(folio) {
+  const razon = prompt('Motivo para regresar el caso al analista:');
+  if (razon) guardar('↩ Caso ' + folio + ' regresado al analista');
+}
+
+function enviarComite(folio) {
+  guardar('🟣 Caso ' + folio + ' enviado a Comité de Comunicación y Control');
+}
+
+function aprobarReporte() {
+  guardar('📤 Reporte aprobado — procede envío a UIF');
+}
+
+function rechazarReporte() {
+  guardar('✗ Reporte no procede — caso cerrado');
+}
+
+function escalarUIF() {
+  guardar('📤 Escalado a UIF — Reporte de Operación Inusual');
+}
+
+function verWordCaso(folio) {
+  window._casoActual = ALERTAS.find(x => x.folio === folio) || {folio, nombre:'—', cliente:'—', fecha:'—', monto:'—'};
+  exportarWord();
+}
+
+// ════════════════════════════════════════
+//  REASIGNACIÓN MODAL (Director / Subdirector)
+// ════════════════════════════════════════
+function abrirModalReasignar() {
+  document.getElementById('reasig-modal-lista').innerHTML = ALERTAS.filter(a => ['pendiente','revision'].includes(a.estatus)).map(a => `
+    <div class="reasig-row">
+      <div style="width:30px;"><input type="checkbox" id="reasig-check-${a.folio}"></div>
+      <div class="reasig-info">
+        <div class="reasig-folio">${a.folio}</div>
+        <div class="reasig-meta">${a.nombre} · ${a.cliente}</div>
+      </div>
+      <div class="reasig-asignado">Asignado: ${(EQUIPO.find(e => e.id === a.analista) || {nombre: 'Sin asignar'}).nombre.split(' ')[0]}</div>
+      <span class="badge badge-${a.prioridad === 'critica' || a.prioridad === 'urgente' ? 'alto' : a.prioridad === 'alta' ? 'medio' : 'bajo'}">${a.prioridad}</span>
+    </div>`).join('');
+  document.getElementById('modal-reasignar').classList.add('open');
+}
+
+function confirmarReasignacion() {
+  const destino = document.getElementById('reasig-destino').value;
+  if (!destino) { alert('Selecciona un analista destino.'); return; }
+  const seleccionadas = ALERTAS.filter(a => {
+    const el = document.getElementById('reasig-check-' + a.folio);
+    return el && el.checked;
+  });
+  cerrarModal('modal-reasignar');
+  const ana = EQUIPO.find(e => e.id === destino);
+  guardar(`🔄 ${seleccionadas.length || 'Alertas'} reasignadas a ${ana ? ana.nombre.split(' ')[0] : destino}`);
+}
+
+// ════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════
+function toggleEl(el) { el.classList.toggle('on'); }
+function updateRS(sel) { sel.className = 'riesgo-select ' + sel.value; }
+
+function guardar(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || '✓ Cambios guardados correctamente';
+  t.classList.add('show');
+  setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Cambios guardados correctamente'; }, 2600);
+}
+</script>
+</body>
+</html>
